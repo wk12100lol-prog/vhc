@@ -1,7 +1,7 @@
 <?php
 // VHC API Router - single entry point for Vercel
-require_once __DIR__ . '/database.php';
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/lib/database.inc';
+require_once __DIR__ . '/lib/config.inc';
 
 $input = Database::getJsonInput();
 
