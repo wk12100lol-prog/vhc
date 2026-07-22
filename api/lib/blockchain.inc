@@ -374,12 +374,14 @@ class Blockchain {
         $this->db->beginTransaction();
 
         try {
-            // Zapis bloku
-            $blockId = $this->db->insert(
+            // Zapis bloku - bypass insert() to avoid any RETURNING/fetch issues
+            $this->db->query(
                 "INSERT INTO blocks (block_index, previous_hash, current_hash, nonce, miner, reward, timestamp, difficulty, transactions_json, created_at)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
                 [$blockIndex, $prevHash, $submittedHash, $nonce, $miner, $reward, $timestamp, $difficulty, $txsJson]
             );
+            // Use direct PDO lastInsertId for PostgreSQL
+            $blockId = $this->db->getPdo()->lastInsertId('blocks_id_seq');
             $debug = "block_ok=$blockId";
 
             // Przetwarzanie transakcji
@@ -435,7 +437,7 @@ class Blockchain {
 
                 // Zapis do historii transakcji
                 $debug .= "|ins_tx";
-                $this->db->insert(
+                $this->db->query(
                     "INSERT INTO transactions (sender, receiver, amount, timestamp, block_id)
                      VALUES (?, ?, ?, ?, ?)",
                     [$tx['sender'], $tx['receiver'], $tx['amount'], $tx['timestamp'] ?? time(), $blockId]
