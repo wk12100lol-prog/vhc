@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie - Vex Hack Coin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="/" class="logo">
+                <div class="logo-icon">V</div>
+                Vex<span>Hack</span>Coin
+            </a>
+            <a href="/admin" class="admin-btn" title="Panel administracyjny">&#9881;</a>
+        </div>
+        <nav>
+            <a href="/">Start</a>
+            <a href="/#pobierz">Pobierz</a>
+            <a href="/#tutorial">Tutorial</a>
+            <a href="/explorer">Eksplorator</a>
+            <a href="/login" class="active">Zaloguj</a>
+            <a href="/register" class="btn btn-primary btn-sm">Rejestracja</a>
+        </nav>
+    </div>
+</header>
+
+<div class="form-container">
+    <div class="form-card">
+        <h2>Zaloguj sie</h2>
+        <p class="subtitle">Wprowadz swoj login i haslo, aby uzyskac dostep do panelu.</p>
+
+        <div id="formError" class="form-error"></div>
+        <div id="formSuccess" class="form-success"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginUser">Login lub email</label>
+                <input type="text" id="loginUser" placeholder="Wprowadz login lub email" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Haslo</label>
+                <input type="password" id="loginPassword" placeholder="Wprowadz haslo" autocomplete="current-password">
+            </div>
+            <div class="form-group" style="flex-direction:row;align-items:center;gap:8px;">
+                <input type="checkbox" id="rememberMe" checked style="width:auto;">
+                <label for="rememberMe" style="margin:0;cursor:pointer;">Zapamietaj mnie</label>
+            </div>
+            <button type="submit" id="loginBtn" class="btn btn-primary btn-lg" style="width:100%">Zaloguj sie</button>
+        </form>
+
+        <div class="form-footer">
+            Nie masz jeszcze konta? <a href="/register">Zaloz konto</a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Vex Hack Coin &copy; 2026</p>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

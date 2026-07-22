@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja - Vex Hack Coin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="/" class="logo">
+                <div class="logo-icon">V</div>
+                Vex<span>Hack</span>Coin
+            </a>
+            <a href="/admin" class="admin-btn" title="Panel administracyjny">&#9881;</a>
+        </div>
+        <nav>
+            <a href="/">Start</a>
+            <a href="/#pobierz">Pobierz</a>
+            <a href="/#tutorial">Tutorial</a>
+            <a href="/explorer">Eksplorator</a>
+            <a href="/login">Zaloguj</a>
+            <a href="/register" class="active">Rejestracja</a>
+        </nav>
+    </div>
+</header>
+
+<div class="form-container">
+    <div class="form-card">
+        <h2>Zaloz konto</h2>
+        <p class="subtitle">Utworz konto i otrzymaj wlasny adres portfela VHC do kopania i transakcji.</p>
+
+        <div id="formError" class="form-error"></div>
+        <div id="formSuccess" class="form-success"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="regLogin">Login</label>
+                <input type="text" id="regLogin" placeholder="Twoja nazwa uzytkownika" autocomplete="username">
+                <div class="input-hint">Minimum 3 znaki</div>
+            </div>
+            <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="Twoj adres email" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Haslo</label>
+                <input type="password" id="regPassword" placeholder="Twoje haslo" autocomplete="new-password">
+                <div class="input-hint">Minimum 6 znakow</div>
+            </div>
+            <div class="form-group">
+                <label for="regConfirm">Potwierdz haslo</label>
+                <input type="password" id="regConfirm" placeholder="Powtorz haslo" autocomplete="new-password">
+            </div>
+            <button type="submit" id="regBtn" class="btn btn-primary btn-lg" style="width:100%">Zaloz konto</button>
+        </form>
+
+        <div class="form-footer">
+            Masz juz konto? <a href="/login">Zaloguj sie</a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Vex Hack Coin &copy; 2026</p>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

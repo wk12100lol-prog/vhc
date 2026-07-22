@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vex Hack Coin (VHC) - Kryptowaluta do kopania na PC i ESP8266</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="/" class="logo">
+                <div class="logo-icon">V</div>
+                Vex<span>Hack</span>Coin
+            </a>
+            <a href="/admin" class="admin-btn" title="Panel administracyjny">&#9881;</a>
+        </div>
+        <nav>
+            <a href="/" class="active">Start</a>
+            <a href="/#pobierz">Pobierz</a>
+            <a href="/#tutorial">Tutorial</a>
+            <a href="/#faq">FAQ</a>
+            <a href="/explorer">Eksplorator</a>
+            <a href="/login" id="navLogin">Zaloguj</a>
+            <a href="/register" id="navRegister" class="btn btn-primary btn-sm">Rejestracja</a>
+            <a href="/dashboard" id="navDashboard" style="display:none;">Panel</a>
+            <a href="#" id="navLogout" style="display:none;" class="logout-btn">Wyloguj</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <h1>Vex Hack Coin</h1>
+    <p>Kryptowaluta Proof-of-Work z w&#x142;asnym blockchainem. Kop na PC lub ESP8266 &#x2013; &#x17C;aden specjalistyczny sprz&#x119;t niepotrzebny.</p>
+    <div>
+        <a href="/register" class="btn btn-primary btn-lg">Rozpocznij kopanie</a>
+        <a href="/#pobierz" class="btn btn-secondary btn-lg">Pobierz kopark&#x119;</a>
+    </div>
+</section>
+
+<section class="section" id="info">
+    <h2 class="section-title">Czym jest VHC?</h2>
+    <p class="section-subtitle">Hobbystyczny blockchain oparty na SHA-256 Proof of Work. W pe&#x142;ni przezroczysty, zdecentralizowany i darmowy.</p>
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-icon">&#x26D3;</div>
+            <h3>W&#x142;asny Blockchain</h3>
+            <p>Ka&#x17C;dy blok zawiera hash poprzedniego, tworz&#x105;c niezmienny &#x142;ancuch. SHA-256, nagroda 1 VHC za blok, czas ~60 s.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#x2699;</div>
+            <h3>Kop na PC</h3>
+            <p>Lekki miner w Pythonie. Dzia&#x142;a w terminalu, nie obci&#x105;&#x17C;a komputera. Wystarczy zainstalowa&#x107; Pythona i uruchomi&#x107; jednym poleceniem.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#x1F4E1;</div>
+            <h3>Kop na ESP8266</h3>
+            <p>NodeMCU za ~15 z&#x142; mo&#x17C;e kopa&#x107; VHC przez Wi-Fi. Niskie zu&#x17C;ycie energii, praca 24/7. Flashuj przez przegl&#x105;dark&#x119;.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#x1F4A0;</div>
+            <h3>Transakcje i Nagrody</h3>
+            <p>Wysy&#x142;aj monety mi&#x119;dzy portfelami. Wymieniaj VHC na nagrody w panelu u&#x17C;ytkownika. Pe&#x142;na kontrola nad &#x15B;rodkami.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Download -->
+<section class="section" id="pobierz" style="background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 24px;max-width:100%;">
+    <div style="max-width:1200px;margin:0 auto;">
+        <h2 class="section-title">Pobierz kopark&#x119;</h2>
+        <p class="section-subtitle">Wybierz platform&#x119; i zacznij kopa&#x107; VHC w kilka minut.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;">
+            <!-- PC -->
+            <div class="card" style="display:flex;flex-direction:column;">
+                <div style="font-size:36px;margin-bottom:12px;">&#x1F4BB;</div>
+                <h3>Miner na PC (Python)</h3>
+                <p style="font-size:14px;color:var(--text-secondary);flex:1;">
+                    Dzia&#x142;a na Windows, Linux, macOS. Wymaga Pythona 3.8+ i biblioteki <code>pycryptodome</code>.
+                    Pobierz ZIP, rozpakuj i uruchom.
+                </p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+                    <a href="/download/miner.zip" class="btn btn-primary" download>&#x1F4E6; Pobierz miner.zip</a>
+                </div>
+            </div>
+
+            <!-- ESP8266 -->
+            <div class="card" style="display:flex;flex-direction:column;">
+                <div style="font-size:36px;margin-bottom:12px;">&#x1F4E1;</div>
+                <h3>Miner na ESP8266</h3>
+                <p style="font-size:14px;color:var(--text-secondary);flex:1;">
+                    NodeMCU v3 (ESP8266) kopie VHC przez Wi-Fi. ~5-20 kH/s, ~200 mA.
+                    Flashuj firmware przez przegl&#x105;dark&#x119; &#x2013; podaj SSID, has&#x142;o i adres portfela.
+                </p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+                    <a href="https://vexcoinflash.xo.je" class="btn btn-primary" target="_blank">&#x26A1; Otw&#xF3;rz Web Flasher</a>
+                    <a href="/download/firmware.bin" class="btn btn-soft" download>Pobierz firmware.bin</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tutorial -->
+<section class="section" id="tutorial">
+    <h2 class="section-title">Jak zacz&#x105;&#x107; kopa&#x107;?</h2>
+    <p class="section-subtitle">Od rejestracji do pierwszego bloku &#x2013; mniej ni&#x17C; 5 minut.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+        <div class="card">
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px;">01</div>
+            <h3>Za&#x142;&#xF3;&#x17C; konto</h3>
+            <p style="font-size:14px;color:var(--text-secondary);"><a href="/register">Zarejestruj si&#x119;</a> &#x2013; podaj login, email i has&#x142;o. Otrzymasz w&#x142;asny adres portfela (VHC...). Zapisz go.</p>
+        </div>
+        <div class="card">
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px;">02</div>
+            <h3>PC: zainstaluj Pythona</h3>
+            <p style="font-size:14px;color:var(--text-secondary);"><a href="https://python.org" target="_blank">Pobierz Pythona 3.8+</a>. Zaznacz <em>Add Python to PATH</em>. Potem otw&#xF3;rz terminal i wpisz: <code style="display:block;background:var(--bg-input);padding:6px 10px;border-radius:6px;margin-top:6px;font-size:12px;">pip install pycryptodome</code></p>
+        </div>
+        <div class="card">
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px;">03</div>
+            <h3>PC: uruchom kopark&#x119;</h3>
+            <p style="font-size:14px;color:var(--text-secondary);">Pobierz <a href="/download/miner.zip" download>miner.zip</a>, rozpakuj do folderu i uruchom w terminalu: <code style="display:block;background:var(--bg-input);padding:6px 10px;border-radius:6px;margin-top:6px;font-size:12px;">python miner.py -w VHC... -d 0.005</code></p>
+        </div>
+        <div class="card">
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px;">04</div>
+            <h3>ESP8266: flashuj firmware</h3>
+            <p style="font-size:14px;color:var(--text-secondary);">Wejd&#x17A; na <a href="https://vexcoinflash.xo.je" target="_blank">vexcoinflash.xo.je</a> w Chrome/Edge. Podaj nazw&#x119; Wi-Fi, has&#x142;o i adres portfela. Kliknij <strong>Flashuj</strong> i pod&#x142;&#x105;cz ESP8266 przez USB.</p>
+        </div>
+        <div class="card">
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px;">05</div>
+            <h3>ESP8266: zasil i kop!</h3>
+            <p style="font-size:14px;color:var(--text-secondary);">Po flashowaniu pod&#x142;&#x105;cz ESP8266 do zasilacza USB. ESP po&#x142;&#x105;czy si&#x119; z Wi-Fi i zacznie kopa&#x107; automatycznie. Monitoruj w panelu.</p>
+        </div>
+        <div class="card">
+            <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px;">06</div>
+            <h3>Sprawdzaj saldo</h3>
+            <p style="font-size:14px;color:var(--text-secondary);">W <a href="/dashboard">panelu u&#x17C;ytkownika</a> widzisz saldo, histor&#x119; transakcji i statystyki. Mo&#x17C;esz wysy&#x142;a&#x107; monety i odbiera&#x107; nagrody.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Statystyki -->
+<section class="section">
+    <h2 class="section-title">Parametry sieci</h2>
+    <p class="section-subtitle">Aktualne dane blockchainu VHC na &#x17C;ywo.</p>
+    <div class="cards-grid" id="statsCards">
+        <div class="card">
+            <div class="card-icon">&#x1F4E6;</div>
+            <h3>Blok&#xF3;w w &#x142;ancuchu</h3>
+            <div class="value" id="statBlocks">-</div>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#x1F3AF;</div>
+            <h3>Aktualna trudno&#x15B;&#x107;</h3>
+            <div class="value" id="statDifficulty">-</div>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#x1FA99;</div>
+            <h3>Ca&#x142;kowita poda&#x17C;</h3>
+            <div class="value" id="statSupply">-</div>
+        </div>
+        <div class="card">
+            <div class="card-icon">&#x26A1;</div>
+            <h3>Aktywnych koparek</h3>
+            <div class="value" id="statMiners">-</div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" style="background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 24px;max-width:100%;">
+    <div style="max-width:1200px;margin:0 auto;">
+        <h2 class="section-title">FAQ</h2>
+        <p class="section-subtitle">Najcz&#x119;stsze pytania i odpowiedzi.</p>
+
+        <div style="display:grid;gap:12px;">
+            <div class="card">
+                <h3>Ile zarobi&#x119; na kopaniu?</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">1 VHC za ka&#x17C;dy znaleziony blok. Na PC przy trudno&#x15B;ci 6-7 blok co 30-90 s. ESP8266 kopie wolniej (blik co 30-90 min), ale dzia&#x142;a 24/7 i praktycznie za darmo (zasilacz USB).</p>
+            </div>
+            <div class="card">
+                <h3>Czy mog&#x119; kopa&#x107; na laptopie?</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">Tak, miner jest lekki. U&#x17C;yj opcji <code>-d/--delay</code> (np. <code>-d 0.05</code>), &#x17C;eby zmniejszy&#x107; obci&#x105;&#x17C;enie CPU. Miner dzia&#x142;a w tle.</p>
+            </div>
+            <div class="card">
+                <h3>Co to jest trudno&#x15B;&#x107;?</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">Liczba zer na pocz&#x105;tku hasha. Trudno&#x15B;&#x107; 4 = hash zaczyna si&#x119; od 0000. System co 100 blok&#xF3;w dostosowuje j&#x105; tak, &#x17C;eby blok pojawia&#x142; si&#x119; &#x15B;rednio co 60 s.</p>
+            </div>
+            <div class="card">
+                <h3>Gdzie kupi&#x107; ESP8266?</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">NodeMCU v3 (ESP8266) kosztuje ~15-25 z&#x142; na Allegro, Amazon lub w sklepach elektronicznych. Potrzebujesz te&#x17C; przewodu USB-microUSB i zasilacza 5V.</p>
+            </div>
+            <div class="card">
+                <h3>Czy VHC ma warto&#x15B;&#x107;?</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">VHC to projekt hobbystyczny i edukacyjny. Monety mo&#x17C;na wysy&#x142;a&#x107; mi&#x119;dzy u&#x17C;ytkownikami i wymienia&#x107; na nagrody w panelu. S&#x142;u&#x17C;y do nauki blockchaina i zabawy.</p>
+            </div>
+            <div class="card">
+                <h3>ESP8266 nie dzia&#x142;a po flashowaniu?</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">Sprawd&#x17A; czy poda&#x142;e&#x15B; poprawny SSID i has&#x142;o Wi-Fi (ESP8266 dzia&#x142;a tylko na 2.4 GHz). U&#x17C;yj monitora szeregowego w web flasherze, &#x17C;eby zobaczy&#x107; logi z ESP.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>Vex Hack Coin &copy; 2026 &mdash; Hobbystyczny projekt kryptowaluty. <a href="https://vexcoinflash.xo.je" target="_blank">Web Flasher ESP8266</a></p>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+(function() {
+    if (getToken()) {
+        document.getElementById('navLogin').style.display = 'none';
+        document.getElementById('navRegister').style.display = 'none';
+        document.getElementById('navDashboard').style.display = '';
+        document.getElementById('navLogout').style.display = '';
+    }
+})();
+
+(async function() {
+    const result = await apiCall('blockchain.php', { action: 'info' });
+    if (result.success) {
+        const d = result.data;
+        document.getElementById('statBlocks').textContent = d.block_count;
+        document.getElementById('statDifficulty').textContent = d.current_difficulty;
+        document.getElementById('statSupply').textContent = parseFloat(d.total_supply).toFixed(2) + ' VHC';
+        document.getElementById('statMiners').textContent = d.active_miners;
+    }
+})();
+</script>
+
+</body>
+</html>

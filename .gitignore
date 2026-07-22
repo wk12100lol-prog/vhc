@@ -1,0 +1,16 @@
+node_modules/
+.pio/
+__pycache__/
+*.pyc
+*.dex
+*.apk
+build/
+.transforms/
+.tmp/
+*.log
+.env
+cookies.txt
+vhc-app/android/.gradle/
+vhc-app/android/app/build/
+vhc-app/android/capacitor-cordova-android-plugins/build/
+vhc-app/node_modules/

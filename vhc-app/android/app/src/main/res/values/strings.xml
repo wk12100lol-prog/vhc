@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VHCWallet</string>
+    <string name="title_activity_main">VHCWallet</string>
+    <string name="package_name">com.vexcoin.wallet</string>
+    <string name="custom_url_scheme">com.vexcoin.wallet</string>
+</resources>

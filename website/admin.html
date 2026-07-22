@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Vex Hack Coin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="/" class="logo">
+                <div class="logo-icon">V</div>
+                Vex<span>Hack</span>Coin
+            </a>
+        </div>
+        <nav>
+            <a href="/">Start</a>
+            <a href="/dashboard">Panel</a>
+            <a href="/explorer">Eksplorator</a>
+            <a href="/register">Rejestracja</a>
+            <a href="#" onclick="logout()">Wyloguj</a>
+        </nav>
+    </div>
+</header>
+
+<div class="form-container" id="loginSection" style="margin-top:80px;">
+    <div class="form-card">
+        <h2>Panel administracyjny</h2>
+        <p class="subtitle">Wprowadz haslo, aby zarzadzac nagrodami.</p>
+        <div id="formError" class="form-error"></div>
+        <div id="formSuccess" class="form-success"></div>
+        <div class="form-group">
+            <label for="adminPass">Haslo</label>
+            <input type="password" id="adminPass" placeholder="Haslo administratora">
+        </div>
+        <button onclick="adminLogin()" class="btn btn-primary btn-lg" style="width:100%;">Zaloguj</button>
+    </div>
+</div>
+
+<div id="adminPanel" style="display:none;max-width:800px;margin:80px auto 0;padding:0 24px;">
+    <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+            <h2>Zarzadzanie nagrodami</h2>
+        </div>
+        <div style="padding:8px 0;">
+            <div class="form-group">
+                <label for="rewardTitle">Tytul nagrody</label>
+                <input type="text" id="rewardTitle" placeholder="Np. 10 VHC bonus">
+            </div>
+            <div class="form-group">
+                <label for="rewardDesc">Opis</label>
+                <input type="text" id="rewardDesc" placeholder="Opis nagrody">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label for="rewardVHC">Wymagane VHC</label>
+                    <input type="number" id="rewardVHC" step="0.01" min="0.01" placeholder="1.00">
+                </div>
+                <div class="form-group">
+                    <label for="rewardStock">Ilosc sztuk</label>
+                    <input type="number" id="rewardStock" min="1" value="1">
+                </div>
+            </div>
+            <button onclick="adminAddReward()" class="btn btn-primary" style="width:100%;">Dodaj nagrode</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Istniejace nagrody</h3>
+        </div>
+        <div id="adminRewardList" style="padding:8px 0;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+            <h3>&#x1F3AF; Ustaw trudnosc</h3>
+        </div>
+        <div style="padding:16px;">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="form-group" style="margin:0;flex:1;min-width:120px;">
+                    <label for="difficultyInput">Trudnosc (4-20)</label>
+                    <input type="number" id="difficultyInput" min="4" max="20" value="4" style="width:100%;">
+                </div>
+                <button onclick="adminSetDifficulty()" class="btn btn-primary" style="margin-top:18px;">Ustaw</button>
+                <span id="currentDifficultyBadge" style="font-size:0.85rem;color:var(--text-muted);margin-top:18px;">Aktualna: -</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Vex Hack Coin &copy; 2026</p>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+function adminLogin() {
+    const pass = document.getElementById('adminPass').value;
+    if (pass !== 'vexhack121koko9a') {
+        showError('Nieprawidlowe haslo');
+        return;
+    }
+    hideError();
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    adminLoadRewards();
+    adminLoadDifficulty();
+}
+
+async function adminLoadRewards() {
+    const container = document.getElementById('adminRewardList');
+    if (!container) return;
+
+    const result = await apiCall('rewards.php', { action: 'list' });
+    if (!result.success || !result.rewards || result.rewards.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px;">Brak nagrod. Dodaj pierwsza!</p>';
+        return;
+    }
+
+    container.innerHTML = '';
+    result.rewards.forEach(r => {
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border);';
+        div.innerHTML = `
+            <div>
+                <strong>${r.title}</strong>
+                <div style="font-size:13px;color:var(--text-muted);">${r.description || ''} - ${r.vhc_required} VHC (${r.stock - r.claimed}/${r.stock} szt.)</div>
+            </div>
+            <button onclick="adminDeleteReward(${r.id})" class="btn btn-danger btn-sm">Usun</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+async function adminAddReward() {
+    const title = document.getElementById('rewardTitle').value.trim();
+    const description = document.getElementById('rewardDesc').value.trim();
+    const vhc_required = parseFloat(document.getElementById('rewardVHC').value);
+    const stock = parseInt(document.getElementById('rewardStock').value) || 1;
+    const password = 'vexhack121koko9a';
+
+    if (!title || !vhc_required || vhc_required <= 0) {
+        showError('Wypelnij tytul i wymagane VHC');
+        return;
+    }
+    hideError();
+
+    const result = await apiCall('rewards.php', {
+        action: 'add', password, title, description, vhc_required, stock
+    });
+
+    if (result.success) {
+        showSuccess('Nagroda dodana!');
+        document.getElementById('rewardTitle').value = '';
+        document.getElementById('rewardDesc').value = '';
+        document.getElementById('rewardVHC').value = '';
+        document.getElementById('rewardStock').value = '1';
+        adminLoadRewards();
+    } else {
+        showError(result.error || 'Blad');
+    }
+}
+
+async function adminDeleteReward(id) {
+    if (!confirm('Usunac te nagrode?')) return;
+
+    const result = await apiCall('rewards.php', {
+        action: 'delete', password: 'vexhack121koko9a', id
+    });
+
+    if (result.success) {
+        adminLoadRewards();
+    } else {
+        showError(result.error || 'Blad');
+    }
+}
+
+async function adminLoadDifficulty() {
+    const result = await apiCall('blockchain.php', { action: 'info' });
+    if (result.success && result.data) {
+        document.getElementById('currentDifficultyBadge').textContent = 'Aktualna: ' + result.data.current_difficulty;
+        document.getElementById('difficultyInput').value = result.data.current_difficulty;
+    }
+}
+
+async function adminSetDifficulty() {
+    const diff = parseInt(document.getElementById('difficultyInput').value);
+    if (diff < 4 || diff > 20 || isNaN(diff)) {
+        showError('Trudnosc musi byc miedzy 4 a 20');
+        return;
+    }
+    hideError();
+
+    const result = await apiCall('rewards.php', {
+        action: 'set_difficulty', password: 'vexhack121koko9a', difficulty: diff
+    });
+
+    if (result.success) {
+        showSuccess('Trudnosc ustawiona na ' + diff);
+        adminLoadDifficulty();
+    } else {
+        showError(result.error || 'Blad');
+    }
+}
+</script>
+</body>
+</html>

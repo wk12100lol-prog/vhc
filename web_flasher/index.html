@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VHC Firmware Configurator - ESP8266 Miner</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background: #0b0d12; color: #e0e4eb; min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; padding: 20px 16px;
+}
+.container { max-width: 540px; width: 100%; display: flex; flex-direction: column; gap: 16px; }
+
+.logo-bar {
+  text-align: center; padding: 8px 0; margin-bottom: 4px;
+}
+.logo-bar a {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 1.1rem; font-weight: 700; color: #e0e4eb; text-decoration: none;
+}
+.logo-bar span { color: #f55; }
+.logo-bar .sub { font-size: 0.75rem; color: #6a7288; margin-top: 2px; }
+.logo-bar .back { font-size: 0.75rem; color: #5a657a; margin-top: 4px; display: inline-block; }
+.logo-bar .back:hover { color: #60a5fa; }
+
+.hero {
+  text-align: center; padding: 20px 0 4px;
+}
+.hero h1 {
+  font-size: clamp(1.5rem, 4vw, 1.9rem); font-weight: 700; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff 0%, #8b92a5 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero h1 span { color: #f55; }
+.hero p { font-size: 0.85rem; color: #6a7288; margin-top: 4px; }
+
+.card {
+  background: #12161d; border: 1px solid #1e2430; border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2);
+}
+.card-title {
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: #5a657a; padding: 16px 20px 8px;
+  border-bottom: 1px solid #1e2430;
+}
+.card-body { padding: 16px 20px; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block; font-size: 0.75rem; font-weight: 500; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 7px;
+}
+.form-group input {
+  width: 100%; padding: 13px 14px; background: #0e1219;
+  border: 1px solid #2a3441; border-radius: 10px; color: #e2e8f0;
+  font-size: 0.9rem; transition: border .15s, box-shadow .15s; font-family: inherit;
+}
+.form-group input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.18); }
+.form-group input::placeholder { color: #475569; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 22px; border: none; border-radius: 10px; font-size: 0.9rem;
+  font-weight: 600; cursor: pointer; transition: all .18s; font-family: inherit;
+  flex: 1; min-width: 0;
+}
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+.btn-primary:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.msg-box {
+  background: #0a0d12; border-radius: 10px; padding: 14px 16px; min-height: 48px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.76rem; line-height: 1.55; border: 1px solid #1e2430; color: #64748b;
+}
+.msg-box .ok { color: #34d399; }
+.msg-box .err { color: #f87171; }
+
+.info-box {
+  background: #0e1219; border: 1px solid #1e2430; border-radius: 10px;
+  padding: 16px 20px; font-size: 0.8rem; color: #64748b; line-height: 1.6;
+}
+.info-box b { color: #e2e8f0; }
+.info-box a { color: #60a5fa; text-decoration: none; }
+.info-box a:hover { text-decoration: underline; }
+.info-box code {
+  display: inline-block; font-family: 'JetBrains Mono', 'Consolas', monospace;
+  background: #1e2430; padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; color: #cbd5e1;
+}
+
+.firmware-info {
+  display: flex; align-items: center; gap: 8px; padding: 10px 20px;
+  font-size: 0.75rem; color: #5a657a; border-top: 1px solid #1e2430;
+}
+.firmware-info .dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+
+.site-footer {
+  text-align: center; font-size: 0.7rem; color: #475569; margin-top: 16px; padding-bottom: 16px;
+}
+.site-footer a { color: #5a657a; text-decoration: none; }
+.site-footer a:hover { color: #60a5fa; }
+
+@media(max-width: 520px){
+  .card-body { padding: 16px; }
+  .actions { flex-direction: column; }
+  .btn { flex: none; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="logo-bar">
+  <a href="https://vexcoin.xo.je">
+    <span style="width:24px;height:24px;background:linear-gradient(135deg,#f55,#d43);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#fff;flex-shrink:0;">V</span>
+    Vex<span>Hack</span>Coin
+  </a>
+  <div class="sub">ESP8266 Firmware Configurator</div>
+  <a href="https://vexcoin.xo.je" class="back">&larr; Strona g&#x142;&oacute;wna</a>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>VHC <span>Configurator</span></h1>
+    <p>Skonfiguruj firmware koparki ESP8266 i pobierz spersonalizowany plik .bin</p>
+  </div>
+
+  <!-- Formularz -->
+  <div class="card">
+    <div class="card-title">Konfiguracja</div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Nazwa sieci WiFi (SSID)</label>
+        <input type="text" id="inputSsid" maxlength="32" placeholder="np. domowa_siec" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Has&#x142;o WiFi</label>
+        <input type="text" id="inputPass" maxlength="63" placeholder="has&#x142;o do sieci WiFi" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Adres portfela VHC</label>
+        <input type="text" id="inputWallet" maxlength="35" placeholder="VHC&hellip; (z panelu vexcoin.xo.je)" autocomplete="off">
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="btnDownload" onclick="downloadFirmware()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Pobierz vhc_miner.bin
+        </button>
+      </div>
+    </div>
+    <div class="firmware-info">
+      <span class="dot"></span>
+      <span id="firmwareInfo">&#x141;adowanie info o firmware&hellip;</span>
+    </div>
+  </div>
+
+  <!-- Komunikat -->
+  <div class="msg-box" id="msgBox">Wprowad&#x17A; dane i kliknij <b>Pobierz</b>, aby otrzyma&#x107; firmware z Twoimi ustawieniami.</div>
+
+  <!-- Instrukcja flashowania -->
+  <div class="info-box">
+    <b>&#x26A1; Jak wgra&#x107; firmware na ESP8266?</b><br><br>
+    1. Pobierz plik <b>vhc_miner.bin</b> z panelu obok.<br>
+    2. &#x15A;ci&#x105;gnij program <a href="https://github.com/esphome/esphome-flasher/releases" target="_blank">ESPHome-Flasher</a> (Windows) lub <code>esptool</code> (Python).<br>
+    3. Pod&#x142;&#x105;cz ESP8266 przez USB, wybierz port COM i plik .bin, kliknij <b>Flash ESP</b>.<br>
+    4. Po zako&#x144;czeniu pod&#x142;&#x105;cz ESP8266 do zasilacza USB &#x2013; zacznie kopa&#x107; automatycznie.<br><br>
+    <b>Wymagania:</b> ESP8266 (NodeMCU v3), przew&oacute;d microUSB, zasilacz 5V.
+  </div>
+
+  <div class="site-footer">
+    <a href="https://vexcoin.xo.je">vexcoin.xo.je</a> &middot; Vex Hack Coin &copy; 2026
+  </div>
+</div>
+
+<script>
+const FIRMWARE_BIN = 'firmware/firmware.bin';
+const PLACEHOLDERS = {
+  ssid:   { pattern: 'S_______________________________',  maxLen: 32 },
+  pass:   { pattern: 'P______________________________________________________________', maxLen: 63 },
+  wallet: { pattern: 'W__________________________________',  maxLen: 35 },
+};
+
+function msg(text, cls) {
+  const el = document.getElementById('msgBox');
+  if (!el) return;
+  if (cls) el.innerHTML = '<span class="' + cls + '">' + text + '</span>';
+  else el.innerHTML = text;
+}
+
+// Informacje o firmware
+fetch(FIRMWARE_BIN)
+  .then(r => {
+    if (!r.ok) throw new Error();
+    const size = r.headers.get('Content-Length') || 0;
+    const info = size ? 'Firmware gotowy (' + (parseInt(size) / 1024).toFixed(0) + ' KB)' : 'Firmware gotowy';
+    document.getElementById('firmwareInfo').textContent = info;
+  })
+  .catch(() => {
+    document.getElementById('firmwareInfo').textContent = 'Brak firmware.bin';
+  });
+
+// Patcher
+async function patchFirmware(ssid, pass, wallet) {
+  const resp = await fetch(FIRMWARE_BIN);
+  if (!resp.ok) throw new Error('Nie mo\u017Cna pobra\u0107 firmware.bin');
+  const data = new Uint8Array(await resp.arrayBuffer());
+  const enc = new TextEncoder();
+
+  const replacements = { ssid, pass, wallet };
+  for (const [key, value] of Object.entries(replacements)) {
+    const ph = PLACEHOLDERS[key];
+    const needle = enc.encode(ph.pattern + '\0');
+    let found = false;
+    for (let i = 0; i <= data.length - needle.length; i++) {
+      let match = true;
+      for (let j = 0; j < needle.length; j++) {
+        if (data[i + j] !== needle[j]) { match = false; break; }
+      }
+      if (match) {
+        const val = enc.encode(value);
+        for (let j = 0; j < needle.length; j++) {
+          data[i + j] = j < val.length ? val[j] : 0;
+        }
+        found = true;
+        break;
+      }
+    }
+    if (!found) throw new Error('Nie znaleziono placeholdera: ' + ph.pattern);
+  }
+  return new Blob([data], { type: 'application/octet-stream' });
+}
+
+// Pobieranie
+async function downloadFirmware() {
+  const ssid   = document.getElementById('inputSsid').value.trim();
+  const pass   = document.getElementById('inputPass').value.trim();
+  const wallet = document.getElementById('inputWallet').value.trim();
+
+  if (!ssid || !wallet) {
+    msg('Uzupe\u0142nij <b>SSID</b> i <b>adres portfela</b>', 'err');
+    return;
+  }
+  if (wallet.length < 8 || !wallet.startsWith('VHC')) {
+    msg('Portfel powinien zaczyna\u0107 si\u0119 od <b>VHC</b>&hellip;', 'err');
+    return;
+  }
+
+  const btn = document.getElementById('btnDownload');
+  btn.disabled = true;
+  btn.textContent = 'Generowanie\u2026';
+  msg('Generowanie firmware z Twoimi ustawieniami\u2026', 'ok');
+
+  try {
+    const blob = await patchFirmware(ssid, pass, wallet);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vhc_miner.bin';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    msg('Pobrano <b>vhc_miner.bin</b> (' + (blob.size / 1024).toFixed(0) + ' KB) &ndash; mo\u017Cesz teraz wgra\u0107 go na ESP8266.', 'ok');
+  } catch(e) {
+    msg('B\u0142\u0105d: ' + e.message, 'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Pobierz vhc_miner.bin';
+}
+</script>
+</body>
+</html>

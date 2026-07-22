@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel - Vex Hack Coin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="dashboardPage">
+
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="/" class="logo">
+                <div class="logo-icon">V</div>
+                Vex<span>Hack</span>Coin
+            </a>
+            <a href="/admin" class="admin-btn" title="Panel administracyjny">&#9881;</a>
+        </div>
+        <nav>
+            <a href="/dashboard" class="active">Panel</a>
+            <a href="/">Strona glowna</a>
+            <a href="/explorer">Eksplorator</a>
+            <a href="#" class="logout-btn">Wyloguj</a>
+        </nav>
+    </div>
+</header>
+
+<div id="alertMessage" class="alert" style="max-width:1200px;margin:16px auto 0;padding:12px 24px;"></div>
+
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>Panel uzytkownika</h1>
+        <span id="userLogin" style="color:var(--text-secondary);font-size:14px;"></span>
+    </div>
+
+    <div class="balance-card">
+        <div class="balance-label">Twoje saldo VHC</div>
+        <div class="balance-amount" id="balanceAmount">0.00000000 VHC</div>
+        <div class="balance-wallet">
+            Portfel: <span id="walletAddress">-</span>
+            <button class="copy-btn" data-copy="-">Kopiuj</button>
+        </div>
+    </div>
+
+    <div class="card" style="border-color:var(--accent);margin-bottom:24px;">
+        <div class="card-header">
+            <h3>&#x26A1; Pobierz kopark&#x119;</h3>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="background:var(--bg-input);border-radius:var(--radius-sm);padding:16px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Miner PC (Python)</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Dla Windows/macOS/Linux</div>
+                <div style="display:flex;gap:8px;">
+                    <a href="/download/miner.zip" class="btn btn-primary btn-sm" download>&#x1F4E6; Pobierz .zip</a>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+                    <code style="font-size:10px;">python miner.py -w <span id="walletShort">-</span></code>
+                </div>
+            </div>
+            <div style="background:var(--bg-input);border-radius:var(--radius-sm);padding:16px;">
+                <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">ESP8266 (NodeMCU)</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Koparka na Wi-Fi 24/7</div>
+                <a href="https://vexcoinflash.xo.je" class="btn btn-primary btn-sm" target="_blank">&#x26A1; Web Flasher</a>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+                    Flashuj firmware przez przegl&#x105;dark&#x119;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-icon">⛏️</div>
+            <h3>Wydobyte bloki</h3>
+            <div class="value" id="blocksMined">0</div>
+        </div>
+        <div class="card">
+            <div class="card-icon">📋</div>
+            <h3>Transakcji</h3>
+            <div class="value" id="txCount">0</div>
+        </div>
+        <div class="card">
+            <div class="card-icon">📦</div>
+            <h3>Blokow w sieci</h3>
+            <div class="value" id="statBlocks">-</div>
+        </div>
+        <div class="card">
+            <div class="card-icon">🎯</div>
+            <h3>Trudnosc</h3>
+            <div class="value" id="statDifficulty">-</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Lewa kolumna -->
+        <div>
+            <!-- Historia transakcji -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <h3>Historia transakcji</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Adres</th>
+                                <th>Kwota</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txTableBody">
+                            <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted);">Ladowanie...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Ostatnie bloki -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Ostatni blok</h3>
+                </div>
+                <div id="latestBlockInfo">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prawa kolumna -->
+        <div>
+            <!-- Wysylanie monet -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <h3>Wyslij VHC</h3>
+                </div>
+                <form id="sendForm" class="send-form" style="padding:0;background:transparent;border:none;">
+                    <div class="form-group">
+                        <label for="sendReceiver">Adres odbiorcy</label>
+                        <input type="text" id="sendReceiver" placeholder="VHC...">
+                    </div>
+                    <div class="form-group">
+                        <label for="sendAmount">Kwota VHC</label>
+                        <input type="number" id="sendAmount" step="0.00000001" min="0.00000001" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="sendPassword">Haslo (autoryzacja)</label>
+                        <input type="password" id="sendPassword" placeholder="Twoje haslo">
+                    </div>
+                    <button type="submit" id="sendBtn" class="btn btn-primary" style="width:100%">Wyslij VHC</button>
+                </form>
+            </div>
+
+            <!-- Informacje o sieci -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Statystyki sieci</h3>
+                </div>
+                <div id="chainInfo">
+                    <div class="spinner"></div>
+                    <div id="chainInfoContent" style="display:none;">
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(30,41,59,0.5);">
+                            <span style="color:var(--text-muted);font-size:13px;">Calkowita podaz</span>
+                            <span id="chainSupply" style="color:var(--accent);font-family:var(--font-mono);font-size:13px;">-</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(30,41,59,0.5);">
+                            <span style="color:var(--text-muted);font-size:13px;">Aktywne koparki</span>
+                            <span id="chainMiners" style="color:var(--text-primary);font-family:var(--font-mono);font-size:13px;">-</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(30,41,59,0.5);">
+                            <span style="color:var(--text-muted);font-size:13px;">Bloki w ostatniej godzinie</span>
+                            <span id="chainBlocksHour" style="color:var(--text-primary);font-family:var(--font-mono);font-size:13px;">-</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(30,41,59,0.5);">
+                            <span style="color:var(--text-muted);font-size:13px;">Transakcji lacznie</span>
+                            <span id="chainTxCount" style="color:var(--text-primary);font-family:var(--font-mono);font-size:13px;">-</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                            <span style="color:var(--text-muted);font-size:13px;">Docelowy czas bloku</span>
+                            <span style="color:var(--text-primary);font-family:var(--font-mono);font-size:13px;">60 sekund</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nagrody -->
+<div class="card" style="margin:24px auto;max-width:1200px;">
+    <div class="card-header">
+        <h3>Nagrody VHC</h3>
+    </div>
+    <div id="rewardsList" style="padding:16px;">
+        <div class="spinner"></div>
+    </div>
+</div>
+
+
+
+<div id="loadingSpinner" style="display:none;"><div class="spinner"></div></div>
+
+<footer>
+    <p>Vex Hack Coin &copy; 2026 &mdash; <a href="https://vexcoinflash.xo.je" target="_blank">Web Flasher ESP8266</a></p>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

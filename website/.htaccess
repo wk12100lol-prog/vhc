@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteRule ^login$ login.html [L]
+RewriteRule ^register$ register.html [L]
+RewriteRule ^dashboard$ dashboard.html [L]
+RewriteRule ^explorer$ explorer.html [L]
+RewriteRule ^admin$ admin.html [L]
+RewriteRule ^$ index.html [L]

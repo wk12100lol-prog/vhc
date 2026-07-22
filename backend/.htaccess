@@ -1,0 +1,26 @@
+# Vex Hack Coin - .htaccess dla API
+# Wersja: 1.0.0
+
+# Wlaczenie CORS
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>
+
+# Ochrona przed hotlinkingiem (opcjonalne)
+# RewriteEngine On
+# RewriteCond %{HTTP_REFERER} !^http://vhc.infinityfreeapp.com/ [NC]
+# RewriteRule \.(jpg|jpeg|png|gif)$ - [F]
+
+# Wylaczenie listowania katalogow
+Options -Indexes
+
+# Zabezpieczenie plikow konfiguracyjnych
+<FilesMatch "\.(sql|md|json)$">
+    Deny from all
+</FilesMatch>
+
+# PHP ustawienia
+php_value display_errors Off
+php_value date.timezone Europe/Warsaw

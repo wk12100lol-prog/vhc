@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksplorator Blockchain - Vex Hack Coin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="explorerPage">
+
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="/" class="logo">
+                <div class="logo-icon">V</div>
+                Vex<span>Hack</span>Coin
+            </a>
+            <a href="/admin" class="admin-btn" title="Panel administracyjny">&#9881;</a>
+        </div>
+        <nav>
+            <a href="/">Start</a>
+            <a href="/#pobierz">Pobierz</a>
+            <a href="/#tutorial">Tutorial</a>
+            <a href="/explorer" class="active">Eksplorator</a>
+            <a href="/login">Zaloguj</a>
+            <a href="/register" class="btn btn-primary btn-sm">Rejestracja</a>
+        </nav>
+    </div>
+</header>
+
+<div class="dashboard">
+    <div class="explorer-header">
+        <div>
+            <h1>Eksplorator Blockchain</h1>
+            <p style="color:var(--text-secondary);font-size:14px;">Przegladaj bloki lancucha Vex Hack Coin</p>
+        </div>
+    </div>
+
+    <div id="blocksList">
+        <div class="spinner" id="blockLoading"></div>
+    </div>
+</div>
+
+<footer>
+    <p>Vex Hack Coin &copy; 2026</p>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
