@@ -451,8 +451,17 @@ class Blockchain {
             ];
 
         } catch (Exception $e) {
-            $this->db->rollback();
-            jsonError('Blad podczas zapisu bloku: ' . $e->getMessage());
+            $msg = $e->getMessage();
+            $code = $e->getCode();
+            // Try to get previous exception details
+            $prev = $e->getPrevious();
+            $prevMsg = $prev ? ' | PREV: ' . $prev->getMessage() : '';
+            // Log which step failed
+            $errDetail = "EX:{$msg} (code:{$code}){$prevMsg}";
+            if (isset($blockId) && $blockId) $errDetail .= " | blockId={$blockId}";
+            $errDetail .= " | txCount=" . count($transactions);
+            try { $this->db->rollback(); } catch (Exception $rb) { $errDetail .= ' | RBERR:' . $rb->getMessage(); }
+            jsonError('Blad podczas zapisu bloku: ' . $errDetail);
         }
     }
 
