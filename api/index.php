@@ -26,6 +26,9 @@ try {
         case 'test':
             jsonSuccess(['message' => 'PHP works!', 'time' => time()]);
             break;
+        case 'debug':
+            jsonSuccess(['input' => $input, 'path' => $path, 'method' => $_SERVER['REQUEST_METHOD']]);
+            break;
         case 'setup':
             getDB();
             $statements = [
