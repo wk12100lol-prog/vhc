@@ -503,36 +503,31 @@ class Blockchain {
     }
 }
 
-// -------------------------------------------------------
-// Routing API - wykonuje sie tylko przy bezposrednim wywolaniu
-// -------------------------------------------------------
-
-$isDirectCall = (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? ''));
-if ($isDirectCall) {
-    $db = Database::getInstance();
-    $blockchain = new Blockchain();
-
-    $action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : '');
-
+// Okresl akcje - z index.php ($action) lub z URL (bezposrednie wywolanie)
+if (!isset($action)) {
+    $action = $_GET['action'] ?? $_POST['action'] ?? '';
     if (empty($action)) {
         $input = getJsonInput();
         $action = $input['action'] ?? '';
     }
+}
 
-    switch ($action) {
-        case 'info':
-            $result = $blockchain->getBlockchainInfo();
-            echo json_encode($result, JSON_UNESCAPED_UNICODE);
-            break;
-
-        case 'blocks':
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
-            $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
-            $blocks = $blockchain->getBlocks($limit, $offset);
-            echo json_encode(['success' => true, 'blocks' => $blocks], JSON_UNESCAPED_UNICODE);
-            break;
-
-        default:
-            jsonError('Nieznana akcja: ' . $action);
-    }
+$bchain = new Blockchain();
+switch ($action) {
+    case 'info':
+    case 'blockchain':
+        $result = $bchain->getBlockchainInfo();
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        break;
+    case 'blocks':
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+        $blocks = $bchain->getBlocks($limit, $offset);
+        echo json_encode(['success' => true, 'blocks' => $blocks], JSON_UNESCAPED_UNICODE);
+        break;
+    default:
+        // Bezposrednie wywolanie pliku z nieznana akcja
+        if ((basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? ''))) {
+            jsonError('Nieznana akcja: ' . ($action ?? ''));
+        }
 }
