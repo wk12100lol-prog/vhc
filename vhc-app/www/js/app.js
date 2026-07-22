@@ -468,7 +468,7 @@ document.querySelectorAll('.app-nav button').forEach(btn => {
     page.style.animation = 'pageIn 0.3s ease-out';
     page.classList.add('active');
     if (btn.dataset.page === 'pageSend') loadWalletHistory();
-    if (btn.dataset.page === 'pageCards') showCards();
+    if (btn.dataset.page === 'pageCards') { showCards(); showNfcHistory(); }
     if (btn.dataset.page === 'pageSettings') renderWalletList();
     if (btn.dataset.page === 'pageMining') updateChart();
     document.getElementById('appContent').scrollTop = 0;
@@ -613,14 +613,17 @@ async function sendCoins() {
 const WORKER_CHUNK = 50000;
 function createWorkerCode() {
   return `
-    self.onmessage = function(e) {
+    self.onmessage = async function(e) {
       const { header, difficulty, startNonce, workerId } = e.data;
       let nonce = startNonce;
       const max = startNonce + ${WORKER_CHUNK};
       const prefix = '0'.repeat(difficulty);
+      const enc = new TextEncoder();
       while (nonce < max) {
         const data = header + '|' + nonce;
-        const hash = sha256js(data);
+        const buf = enc.encode(data);
+        const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+        const hash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
         if (hash.startsWith(prefix)) {
           self.postMessage({ found: true, nonce, hash, workerId });
           return;
@@ -629,23 +632,6 @@ function createWorkerCode() {
       }
       self.postMessage({ found: false, nonce: startNonce, workerId });
     };
-    function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
-    function sigma0(x) { return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22); }
-    function sigma1(x) { return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25); }
-    function gamma0(x) { return rotr(x, 7) ^ rotr(x, 18) ^ (x >>> 3); }
-    function gamma1(x) { return rotr(x, 17) ^ rotr(x, 19) ^ (x >>> 10); }
-    function ch(x,y,z) { return (x & y) ^ (~x & z); }
-    function maj(x,y,z) { return (x & y) ^ (x & z) ^ (y & z); }
-    const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
-    function sha256js(data) {
-      const len=data.length; const ml=len*8; const totalLen=((len+9+63)>>>6)<<6;
-      const blocks=[];
-      for(let i=0;i<totalLen;i+=64){const block=new Uint32Array(16);for(let j=0;j<16;j++){let w=0;for(let k=0;k<4;k++){const idx=i+j*4+k;w=(w<<8)|(idx<len?data.charCodeAt(idx):(idx===len?0x80:0));}if(i+j*4+3>=len+8&&i+j*4>=len+1){if(i+j*4===totalLen-8)w=ml>>>24;else if(i+j*4===totalLen-7)w=(ml>>>16)&0xff;else if(i+j*4===totalLen-6)w=(ml>>>8)&0xff;else if(i+j*4===totalLen-5)w=ml&0xff;}block[j]=w;}blocks.push(block);}
-      let H0=0x6a09e667,H1=0xbb67ae85,H2=0x3c6ef372,H3=0xa54ff53a,H4=0x510e527f,H5=0x9b05688c,H6=0x1f83d9ab,H7=0x5be0cd19;
-      for(let b=0;b<blocks.length;b++){const W=new Uint32Array(64);for(let t=0;t<16;t++)W[t]=blocks[b][t];for(let t=16;t<64;t++)W[t]=(gamma1(W[t-2])+W[t-7]+gamma0(W[t-15])+W[t-16])>>>0;let a=H0,b2=H1,c=H2,d=H3,e=H4,f=H5,g=H6,h=H7;for(let t=0;t<64;t++){const T1=(h+sigma1(e)+ch(e,f,g)+K[t]+W[t])>>>0;const T2=(sigma0(a)+maj(a,b2,c))>>>0;h=g;g=f;f=e;e=(d+T1)>>>0;d=c;c=b2;b2=a;a=(T1+T2)>>>0;}H0=(H0+a)>>>0;H1=(H1+b2)>>>0;H2=(H2+c)>>>0;H3=(H3+d)>>>0;H4=(H4+e)>>>0;H5=(H5+f)>>>0;H6=(H6+g)>>>0;H7=(H7+h)>>>0;}
-      const hex=n=>(n>>>24).toString(16).padStart(2,'0')+((n>>>16)&0xff).toString(16).padStart(2,'0')+((n>>>8)&0xff).toString(16).padStart(2,'0')+(n&0xff).toString(16).padStart(2,'0');
-      return hex(H0)+hex(H1)+hex(H2)+hex(H3)+hex(H4)+hex(H5)+hex(H6)+hex(H7);
-    }
   `;
 }
 function createWorker() { const blob = new Blob([createWorkerCode()], { type: 'application/javascript' }); return new Worker(URL.createObjectURL(blob)); }
@@ -907,6 +893,7 @@ function showCards() {
       <div class="pc-actions">
         <button class="btn btn-sm ${c.status === 'active' ? 'btn-danger' : 'btn-primary'}" onclick="toggleCardStatus('${c.id}')">${c.status === 'active' ? '\u274C Freeze' : '\u25B6 Unfreeze'}</button>
         <button class="btn btn-sm btn-outline" onclick="loadCard('${c.id}')">\u2795 Top up</button>
+        <button class="btn btn-sm btn-primary" onclick="nfcPayP2p('${c.id}')" style="flex:0.7;">\uD83D\uDCF1 Send NFC</button>
       </div>`;
     el.appendChild(d);
     // 3D tilt effect
@@ -948,6 +935,211 @@ async function loadCard(id) {
   loadDashboard();
 }
 
+// ====================== NFC P2P PAYMENTS ======================
+let nfcScanning = false;
+let nfcShareActive = false;
+let nfcShareTimeout = null;
+
+function loadNfcSent() { const r = STORE.getItem('vhc_nfc_sent'); return r ? JSON.parse(r) : []; }
+function saveNfcSent(list) { STORE.setItem('vhc_nfc_sent', JSON.stringify(list)); }
+function loadNfcReceived() { const r = STORE.getItem('vhc_nfc_received'); return r ? JSON.parse(r) : []; }
+function saveNfcReceived(list) { STORE.setItem('vhc_nfc_received', JSON.stringify(list)); }
+function shortenHash(h, len = 8) { if (!h || h.length <= len*2) return h||'-'; return h.substring(0,len)+'...'+h.substring(h.length-len); }
+
+async function nfcPayP2p(cardId) {
+  const Nfc = Capacitor.Plugins.CapacitorNfc;
+  if (!Nfc) { toast('NFC not available'); return; }
+  if (nfcScanning || nfcShareActive) { toast('NFC busy...'); return; }
+
+  const cards = loadPaymentCards();
+  const c = cards.find(x => x.id === cardId);
+  if (!c) { toast('Card not found'); return; }
+  if (c.status !== 'active') { toast('Card is frozen'); return; }
+
+  const pin = prompt('Enter card PIN to authorize NFC payment:');
+  if (!pin || pin !== c.pin) { toast('Wrong PIN'); return; }
+
+  const amtStr = prompt('Amount in VHC (max ' + c.balance.toFixed(2) + '):');
+  const amt = parseFloat(amtStr);
+  if (!amt || amt <= 0 || amt > c.balance) { toast('Invalid amount'); return; }
+
+  // Deduct from card balance
+  c.balance -= amt;
+  savePaymentCards(cards);
+  showCards();
+
+  // Record sent transfer
+  const transfer = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    to: '(via NFC)',
+    amount: amt,
+    cardId: cardId,
+    status: 'pending',
+    ts: Date.now()
+  };
+  const sent = loadNfcSent();
+  sent.unshift(transfer);
+  saveNfcSent(sent);
+
+  nfcShareActive = true;
+  const encoder = new TextEncoder();
+  const payData = JSON.stringify({ type: 'vhcpay', sender: wallet, amount: amt, card: cardId, code: transfer.id, ts: Date.now() });
+  const payBytes = [].slice.call(encoder.encode(payData));
+  const langBytes = [0x65, 0x6E];
+  const payload = [0x02].concat(langBytes).concat(payBytes);
+
+  toast('\uD83D\uDCF1 Tap phone to receiver...');
+
+  try {
+    await Nfc.share({
+      records: [{ tnf: 1, type: [0x54], id: [0x04], payload }],
+      message: payData
+    });
+    // Auto-stop after 30s
+    nfcShareTimeout = setTimeout(async () => {
+      if (nfcShareActive) {
+        try { await Nfc.unshare(); } catch(e) {}
+        nfcShareActive = false;
+        transfer.status = 'expired';
+        // Refund card
+        c.balance += amt;
+        savePaymentCards(cards);
+        showCards();
+        toast('\u23F0 NFC payment expired. Balance refunded.');
+      }
+    }, 30000);
+  } catch(e) {
+    nfcShareActive = false;
+    // Refund
+    c.balance += amt;
+    savePaymentCards(cards);
+    showCards();
+    toast('NFC error: ' + e.message);
+  }
+}
+
+async function nfcReceive() {
+  const Nfc = Capacitor.Plugins.CapacitorNfc;
+  if (!Nfc) { toast('NFC not available'); return; }
+  if (nfcScanning) { toast('Already receiving...'); return; }
+  if (nfcShareActive) { toast('Stop sending first'); return; }
+
+  nfcScanning = true;
+  document.getElementById('nfcReceiveStatus').style.display = 'block';
+  document.getElementById('nfcReceiveStatus').textContent = '\uD83D\uDCF1 Waiting for NFC payment...';
+  toast('Waiting for NFC payment...');
+
+  try {
+    const removeListener = await Nfc.addListener('ndefDiscovered', async (event) => {
+      try { await Nfc.stopScanning(); } catch(e) {}
+      nfcScanning = false;
+      removeListener();
+      document.getElementById('nfcReceiveStatus').style.display = 'none';
+
+      let payData = null;
+      try {
+        const tag = event.tag || {};
+        if (tag.ndefMessage) {
+          for (const r of tag.ndefMessage) {
+            if (r.payload) {
+              const payload = typeof r.payload === 'string' ? r.payload : String.fromCharCode.apply(null, new Uint8Array(r.payload));
+              const clean = payload.replace(/[^a-zA-Z0-9_{}\[\]:,\"\-\.]/g, '');
+              if (clean.includes('"vhcpay"') || clean.includes('"type":"vhcpay"')) {
+                payData = JSON.parse(clean);
+                break;
+              }
+            }
+          }
+        }
+        if (!payData) {
+          const m = JSON.stringify(event).match(/\{"type":"vhcpay".*?\}/);
+          if (m) payData = JSON.parse(m[0]);
+        }
+      } catch(e) {}
+
+      if (payData && payData.sender && payData.amount > 0) {
+        if (payData.sender === wallet) {
+          toast('Cannot receive from yourself');
+          return;
+        }
+        if (!confirm('Accept ' + payData.amount.toFixed(2) + ' VHC from\n' + shortenHash(payData.sender, 12) + '?')) {
+          toast('Payment declined');
+          return;
+        }
+        // Record received transfer
+        const rec = {
+          id: payData.code || Date.now().toString(36),
+          from: payData.sender,
+          amount: payData.amount,
+          cardId: payData.card || '-',
+          ts: Date.now()
+        };
+        const recv = loadNfcReceived();
+        recv.unshift(rec);
+        saveNfcReceived(recv);
+
+        // Pre-fill send form for returning or sending onward
+        document.getElementById('sendAddr').value = payData.sender;
+        document.getElementById('sendAmount').value = payData.amount.toFixed(2);
+        document.getElementById('sendNote').value = 'NFC received payment';
+        document.querySelector('[data-page="pageSend"]').click();
+        toast('\u2714 Received ' + payData.amount.toFixed(2) + ' VHC via NFC!');
+      } else {
+        toast('Invalid NFC payment data');
+      }
+    });
+
+    await Nfc.startScanning();
+  } catch(e) {
+    nfcScanning = false;
+    document.getElementById('nfcReceiveStatus').style.display = 'none';
+    toast('NFC error: ' + e.message);
+  }
+}
+
+function nfcCancel() {
+  if (nfcShareActive) {
+    clearTimeout(nfcShareTimeout);
+    nfcShareActive = false;
+    try {
+      const Nfc = Capacitor.Plugins.CapacitorNfc;
+      if (Nfc) Nfc.unshare();
+    } catch(e) {}
+    toast('NFC sending cancelled');
+  }
+  if (nfcScanning) {
+    nfcScanning = false;
+    document.getElementById('nfcReceiveStatus').style.display = 'none';
+    try {
+      const Nfc = Capacitor.Plugins.CapacitorNfc;
+      if (Nfc) Nfc.stopScanning();
+    } catch(e) {}
+    toast('NFC receiving cancelled');
+  }
+}
+
+function showNfcHistory() {
+  const sent = loadNfcSent();
+  const recv = loadNfcReceived();
+  const el = document.getElementById('nfcHistory');
+  if (!sent.length && !recv.length) {
+    el.innerHTML = '<div class="empty">No NFC transfers yet</div>';
+    return;
+  }
+  let html = '';
+  for (const t of sent) {
+    const ago = Math.floor((Date.now() - t.ts) / 1000);
+    const label = ago < 60 ? ago + 's ago' : Math.floor(ago/60) + 'm ago';
+    html += '<div class="nfc-item sent"><span class="nfc-arrow">\u2191</span> <b>-' + t.amount.toFixed(2) + '</b> VHC <span class="nfc-meta">' + t.status + ' ' + label + '</span></div>';
+  }
+  for (const t of recv) {
+    const ago = Math.floor((Date.now() - t.ts) / 1000);
+    const label = ago < 60 ? ago + 's ago' : Math.floor(ago/60) + 'm ago';
+    html += '<div class="nfc-item received"><span class="nfc-arrow">\u2193</span> <b>+' + t.amount.toFixed(2) + '</b> VHC <span class="nfc-meta">from ' + shortenHash(t.from, 8) + ' ' + label + '</span></div>';
+  }
+  el.innerHTML = html;
+}
+
 // ====================== INIT ======================
 document.addEventListener('DOMContentLoaded', () => {
   initParticles();
@@ -961,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Auto-refresh dashboard
 setInterval(() => {
-  if (document.getElementById('mainApp').classList.contains('active') && !mining) {
+  if (document.getElementById('mainApp').classList.contains('active')) {
     loadDashboard();
   }
 }, 15000);

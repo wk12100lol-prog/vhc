@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; connect-src 'self' https://krypto-wk12100lol-progs-projects.vercel.app https://*.infinityfree.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src 'self' blob:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; connect-src 'self' https://krypto-wk12100lol-progs-projects.vercel.app https://krypto-indol.vercel.app https://krypto-e0aid1lqi-wk12100lol-progs-projects.vercel.app https://*.infinityfree.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' blob:; worker-src 'self' blob:; media-src 'self' blob:">
 <title>VHC Wallet</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -89,6 +89,7 @@
         <div class="balance-amount" id="balanceAmount" data-val="0">0.00 VHC</div>
         <div class="balance-wallet" id="walletAddress">VHC...</div>
         <button class="btn btn-sm btn-outline" onclick="shareWallet()" style="margin-top:10px;width:auto;display:inline-flex;">&#x1F517; Share address</button>
+        <button class="btn btn-sm btn-primary" onclick="nfcWrite()" style="margin-top:10px;width:auto;display:inline-flex;margin-left:8px;">&#x1F4F1; Write NFC</button>
       </div>
 
       <div class="stats-grid">
@@ -203,6 +204,19 @@
         </div>
         <button class="btn btn-primary" onclick="createPaymentCard()">&#x1F4B3; Create card (0.1 VHC)</button>
       </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-title">NFC P2P Payments</div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Tap phone-to-phone to send/receive VHC using card balance.</p>
+        <div id="nfcReceiveStatus" style="display:none;background:var(--accent);color:#0a0e1a;padding:12px;border-radius:12px;font-weight:600;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <button class="btn btn-primary" onclick="nfcReceive()" style="flex:1;">&#x1F4F1; Receive NFC</button>
+          <button class="btn btn-danger" onclick="nfcCancel()" style="flex:0;width:auto;padding:12px 18px;">&#x2716;</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">NFC History</div>
+        <div id="nfcHistory"><div class="empty">No NFC transfers yet</div></div>
+      </div>
       <div id="cardList"><div class="empty">No cards. Create one!</div></div>
     </div>
 
@@ -253,7 +267,7 @@
         <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">
           <b>Vex Hack Coin</b> &ndash; hobby SHA-256 PoW blockchain.<br><br>
           Server: <span id="settingsServer">Vercel + Neon</span><br>
-          Version: 2.0.0<br>
+          Version: 3.0.0<br>
           <a href="https://vexcoin.xo.je" style="color:var(--accent);text-decoration:none;" target="_blank">vexcoin.xo.je</a>
         </div>
       </div>

@@ -451,3 +451,15 @@ canvas { display: block; border-radius: 10px; }
 .tx-item:nth-child(3) { animation-delay: 0.06s; }
 .tx-item:nth-child(4) { animation-delay: 0.08s; }
 .tx-item:nth-child(5) { animation-delay: 0.10s; }
+
+/* NFC history items */
+.nfc-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 14px;
+}
+.nfc-item:last-child { border-bottom: none; }
+.nfc-item .nfc-arrow { font-size: 16px; }
+.nfc-item.sent { color: var(--danger); }
+.nfc-item.received { color: var(--accent); }
+.nfc-item .nfc-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; }

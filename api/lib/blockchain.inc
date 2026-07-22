@@ -375,13 +375,11 @@ class Blockchain {
 
         try {
             // Zapis bloku
-            $this->db->insert(
+            $blockId = $this->db->insert(
                 "INSERT INTO blocks (block_index, previous_hash, current_hash, nonce, miner, reward, timestamp, difficulty, transactions_json, created_at)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
                 [$blockIndex, $prevHash, $submittedHash, $nonce, $miner, $reward, $timestamp, $difficulty, $txsJson]
             );
-
-            $blockId = $this->db->getPdo()->lastInsertId();
 
             // Przetwarzanie transakcji
             $txIndex = 0;
