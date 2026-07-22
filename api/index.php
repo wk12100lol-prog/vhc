@@ -27,7 +27,15 @@ try {
             jsonSuccess(['message' => 'PHP works!', 'time' => time()]);
             break;
         case 'debug':
-            jsonSuccess(['input' => $input, 'path' => $path, 'method' => $_SERVER['REQUEST_METHOD']]);
+            $rawInput = file_get_contents('php://input');
+            jsonSuccess([
+                'input' => $input,
+                'raw' => $rawInput,
+                'post' => $_POST,
+                'path' => $path,
+                'method' => $_SERVER['REQUEST_METHOD'],
+                'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'none'
+            ]);
             break;
         case 'setup':
             getDB();
