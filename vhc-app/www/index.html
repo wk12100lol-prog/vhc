@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; connect-src 'self' https://vexcoin.xo.je https://*.infinityfree.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src 'self' blob:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; connect-src 'self' https://krypto-wk12100lol-progs-projects.vercel.app https://*.infinityfree.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src 'self' blob:">
 <title>VHC Wallet</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -12,23 +12,24 @@
 <!-- Splash -->
 <div id="splashScreen">
   <div class="splash-icon">V</div>
-  <div class="splash-title">Vex<span>Hack</span>Coin</div>
+  <div class="splash-title">VexHackCoin</div>
   <div class="splash-sub">Mobile Wallet &amp; Miner</div>
+  <div class="splash-loader"></div>
 </div>
 
 <!-- PIN Lock -->
-<div id="pinScreen" style="display:none;">
-  <div class="auth-box" style="margin:auto;">
-    <h2>Blokada PIN</h2>
-    <div class="sub">Wprowadź PIN, aby odblokować portfel</div>
-    <div class="error" id="pinError" style="display:none;"></div>
+<div id="pinScreen">
+  <div class="auth-box">
+    <h2>PIN Lock</h2>
+    <div class="sub">Enter PIN to unlock wallet</div>
+    <div class="error" id="pinError"></div>
     <div class="form-group">
-      <label>PIN (4 cyfry)</label>
+      <label>PIN (4 digits)</label>
       <input type="password" id="pinInput" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="****" style="text-align:center;font-size:24px;letter-spacing:8px;">
     </div>
-    <button class="btn btn-primary" onclick="unlockApp()">Odblokuj</button>
+    <button class="btn btn-primary" onclick="unlockApp()">Unlock</button>
     <div style="text-align:center;margin-top:12px;">
-      <a href="#" style="color:var(--text-muted);font-size:13px;text-decoration:none;" onclick="logoutFromPin()">Wyloguj</a>
+      <a href="#" style="color:var(--text-muted);font-size:13px;text-decoration:none;" onclick="logoutFromPin()">Log out</a>
     </div>
   </div>
 </div>
@@ -36,35 +37,35 @@
 <!-- Auth -->
 <div id="authScreen">
   <div class="auth-box">
-    <h2 id="authTitle">Zaloguj się</h2>
-    <div class="sub" id="authSub">Wprowadź dane do panelu VHC</div>
+    <h2 id="authTitle">Sign In</h2>
+    <div class="sub" id="authSub">Welcome back to VHC</div>
     <div class="error" id="authError"></div>
     <div class="success" id="authSuccess"></div>
 
     <div id="authFields">
       <div class="form-group">
-        <label>Login lub email</label>
-        <input type="text" id="authLogin" placeholder="Login z vexcoin.xo.je" autocomplete="username">
+        <label>Login or email</label>
+        <input type="text" id="authLogin" placeholder="Your login" autocomplete="username">
       </div>
       <div class="form-group" id="emailGroup" style="display:none;">
         <label>Email</label>
-        <input type="email" id="authEmail" placeholder="Adres email" autocomplete="email">
+        <input type="email" id="authEmail" placeholder="Email address" autocomplete="email">
       </div>
       <div class="form-group">
-        <label>Hasło</label>
-        <input type="password" id="authPassword" placeholder="Twoje hasło" autocomplete="current-password">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Your password" autocomplete="current-password">
       </div>
       <div class="form-group" id="confirmGroup" style="display:none;">
-        <label>Potwierdź hasło</label>
-        <input type="password" id="authConfirm" placeholder="Powtórz hasło" autocomplete="new-password">
+        <label>Confirm password</label>
+        <input type="password" id="authConfirm" placeholder="Repeat password" autocomplete="new-password">
       </div>
     </div>
 
-    <button class="btn btn-primary" id="authBtn" onclick="handleAuth()">Zaloguj się</button>
+    <button class="btn btn-primary" id="authBtn" onclick="handleAuth()">Sign In</button>
 
     <div class="auth-toggle">
-      <span id="authToggleText">Nie masz konta?</span>
-      <a href="#" id="authToggleLink" onclick="toggleAuthMode()">Zarejestruj się</a>
+      <span id="authToggleText">No account?</span>
+      <a href="#" id="authToggleLink" onclick="toggleAuthMode()">Register</a>
     </div>
   </div>
 </div>
@@ -75,54 +76,54 @@
     <div class="title">Vex<span>Hack</span>Coin</div>
     <div class="right">
       <span class="badge" id="headerDifficulty">D: -</span>
-      <span style="font-size:12px;color:var(--text-muted);cursor:pointer;" onclick="logout()">⏻</span>
+      <span style="font-size:16px;color:var(--text-muted);cursor:pointer;padding:4px;" onclick="logout()">&#x23FB;</span>
     </div>
   </div>
 
   <div class="app-content" id="appContent">
     <!-- Dashboard -->
     <div class="page active" id="pageDashboard">
-      <div class="pull-indicator" id="pullIndicator">&#8595; Puść aby odświeżyć</div>
+      <div class="pull-indicator" id="pullIndicator">&#8595; Pull to refresh</div>
       <div class="balance-card">
-        <div class="balance-label">Twoje saldo</div>
-        <div class="balance-amount" id="balanceAmount">0.00 VHC</div>
+        <div class="balance-label">Your balance</div>
+        <div class="balance-amount" id="balanceAmount" data-val="0">0.00 VHC</div>
         <div class="balance-wallet" id="walletAddress">VHC...</div>
-        <button class="btn btn-sm btn-outline" onclick="shareWallet()" style="margin-top:8px;width:auto;display:inline-flex;">&#x1F517; Udostępnij adres</button>
+        <button class="btn btn-sm btn-outline" onclick="shareWallet()" style="margin-top:10px;width:auto;display:inline-flex;">&#x1F517; Share address</button>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-value" id="statBlocks">-</div>
-          <div class="stat-label">Bloków</div>
+          <div class="stat-label">Blocks</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statDifficulty">-</div>
-          <div class="stat-label">Trudność</div>
+          <div class="stat-label">Difficulty</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statMined">0</div>
-          <div class="stat-label">Wydobyte</div>
+          <div class="stat-label">Mined</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statTX">0</div>
-          <div class="stat-label">Transakcje</div>
+          <div class="stat-label">Transactions</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Ostatnie transakcje</div>
-        <div id="txList"><div class="empty">Ładowanie...</div></div>
+        <div class="card-title">Recent transactions</div>
+        <div id="txList"><div class="spinner"></div></div>
       </div>
     </div>
 
     <!-- Mining -->
     <div class="page" id="pageMining">
       <div class="card">
-        <div class="card-title">Koparka</div>
+        <div class="card-title">Miner</div>
         <div class="mining-status">
-          <div class="mining-icon" id="miningIcon">&#x26A1;</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text);" id="miningStatus">Zatrzymana</div>
-          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;" id="miningDetail">Kliknij Start, aby rozpocząć</div>
+          <span class="mining-icon" id="miningIcon">&#x26A1;</span>
+          <div style="font-size:20px;font-weight:800;color:var(--text);" id="miningStatus">Stopped</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:6px;" id="miningDetail">Press Start to mine</div>
         </div>
         <div class="mining-stats">
           <div class="mining-stat">
@@ -135,130 +136,124 @@
           </div>
           <div class="mining-stat">
             <div class="val" id="blocksFound">0</div>
-            <div class="lbl">Bloki</div>
+            <div class="lbl">Blocks</div>
           </div>
           <div class="mining-stat">
             <div class="val" id="miningThreads">4</div>
-            <div class="lbl">Wątki</div>
+            <div class="lbl">Threads</div>
           </div>
         </div>
         <div class="mining-progress">
           <div class="mining-progress-fill" id="miningProgress"></div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <button class="btn btn-primary" id="miningBtn" onclick="toggleMining()" style="flex:1;">▶️ Start</button>
-          <button class="btn btn-outline" onclick="showThreadPicker()" style="flex:0;width:auto;padding:14px 16px;" id="threadBtn">⚙️</button>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="btn btn-primary" id="miningBtn" onclick="toggleMining()" style="flex:1;">&#x25B6; Start</button>
+          <button class="btn btn-outline" onclick="showThreadPicker()" style="flex:0;width:auto;padding:14px 18px;" id="threadBtn">&#x2699;</button>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px;">
-          <span id="batteryMode">⚡</span> Miner SHA-256 · <span id="autoMiningLabel">Auto: wł.</span>
+        <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">
+          <span id="batteryMode">&#x26A1;</span> SHA-256 Miner &middot; <span id="autoMiningLabel">Auto: off</span>
         </div>
       </div>
 
-      <!-- Hashrate chart -->
       <div class="card">
-        <div class="card-title">Wykres hashrate</div>
-        <canvas id="hashChart" width="340" height="120" style="width:100%;height:120px;background:var(--bg-input);border-radius:8px;"></canvas>
+        <div class="card-title">Hashrate chart</div>
+        <canvas id="hashChart" width="340" height="140" style="width:100%;height:140px;"></canvas>
       </div>
     </div>
 
     <!-- Send -->
     <div class="page" id="pageSend">
       <div class="card">
-        <div class="card-title">Wyślij VHC</div>
+        <div class="card-title">Send VHC</div>
         <div class="form-group">
-          <label>Adres odbiorcy</label>
+          <label>Recipient address</label>
           <input type="text" id="sendAddr" placeholder="VHC...">
         </div>
         <div class="form-group">
-          <label>Kwota</label>
+          <label>Amount</label>
           <input type="number" id="sendAmount" step="0.00000001" min="0.00000001" placeholder="0.00">
         </div>
         <div class="form-group">
-          <label>Notatka (opcjonalnie)</label>
-          <input type="text" id="sendNote" placeholder="np. za colę" maxlength="64">
+          <label>Note (optional)</label>
+          <input type="text" id="sendNote" placeholder="e.g. for coffee" maxlength="64">
         </div>
         <div class="form-group">
-          <label>Hasło (autoryzacja)</label>
-          <input type="password" id="sendPass" placeholder="Twoje hasło">
+          <label>Password (authorization)</label>
+          <input type="password" id="sendPass" placeholder="Your password">
         </div>
-        <button class="btn btn-primary" onclick="sendCoins()">Wyślij</button>
+        <button class="btn btn-primary" onclick="sendCoins()">Send</button>
       </div>
 
       <div class="card">
-        <div class="card-title">Historia</div>
-        <div id="txHistory"><div class="empty">Ładowanie...</div></div>
+        <div class="card-title">History</div>
+        <div id="txHistory"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <!-- Karty płatnicze -->
+    <!-- Payment cards -->
     <div class="page" id="pageCards">
       <div class="card">
-        <div class="card-title">Nowa karta płatnicza</div>
+        <div class="card-title">New payment card</div>
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
-          Utwórz wirtualną kartę VHC. Koszt: <b>0.1 VHC</b>. Możesz ją ładować, zamrażać i płacić.
+          Create a virtual VHC card. Cost: <b>0.1 VHC</b>. Top up, freeze, and pay.
         </p>
         <div class="form-group">
-          <label>PIN (4 cyfry)</label>
+          <label>PIN (4 digits)</label>
           <input type="password" id="cardPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="****">
         </div>
-        <button class="btn btn-primary" onclick="createPaymentCard()">&#x1F4B3; Utwórz kartę (0.1 VHC)</button>
+        <button class="btn btn-primary" onclick="createPaymentCard()">&#x1F4B3; Create card (0.1 VHC)</button>
       </div>
-      <div id="cardList"><div class="empty">Brak kart. Utwórz pierwszą!</div></div>
+      <div id="cardList"><div class="empty">No cards. Create one!</div></div>
     </div>
 
     <!-- Settings -->
     <div class="page" id="pageSettings">
       <div class="card">
-        <div class="card-title">Konto</div>
-        <p style="font-size:14px;">Zalogowany jako: <b id="settingsLogin">-</b></p>
-        <p style="font-size:12px;color:var(--text-muted);word-break:break-all;" id="settingsWallet">-</p>
-        <button class="btn btn-danger btn-sm" onclick="logout()" style="margin-top:12px;">Wyloguj</button>
+        <div class="card-title">Account</div>
+        <p style="font-size:15px;font-weight:600;">Logged in as: <span id="settingsLogin">-</span></p>
+        <p style="font-size:12px;color:var(--text-muted);word-break:break-all;margin-top:4px;" id="settingsWallet">-</p>
+        <button class="btn btn-danger btn-sm" onclick="logout()" style="margin-top:14px;">Log out</button>
       </div>
 
       <div class="card">
         <div class="card-title">Multi-wallet</div>
         <div id="walletList"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <input type="text" id="importWalletAddr" placeholder="Adres VHC..." style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-family:var(--font);outline:none;">
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input type="text" id="importWalletAddr" placeholder="VHC address..." style="flex:1;background:var(--bg-input);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;color:var(--text);font-family:var(--font);outline:none;">
           <button class="btn btn-sm btn-primary" onclick="importWallet()" style="width:auto;">+</button>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Ustawienia</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-          <span style="font-size:13px;">Auto-kopanie po starcie</span>
+        <div class="card-title">Settings</div>
+        <div class="setting-item">
+          <span class="label">Auto-mine on start</span>
           <label class="switch"><input type="checkbox" id="autoMineToggle" onchange="saveSettings()"><span class="slider"></span></label>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-          <span style="font-size:13px;">Tryb oszczędzania baterii</span>
+        <div class="setting-item">
+          <span class="label">Battery saving</span>
           <label class="switch"><input type="checkbox" id="batterySaveToggle" checked onchange="saveSettings()"><span class="slider"></span></label>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-          <span style="font-size:13px;">Wibracja przy bloku</span>
+        <div class="setting-item">
+          <span class="label">Vibrate on block</span>
           <label class="switch"><input type="checkbox" id="vibrateToggle" checked onchange="saveSettings()"><span class="slider"></span></label>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-          <span style="font-size:13px;">Dźwięk przy bloku</span>
+        <div class="setting-item">
+          <span class="label">Sound on block</span>
           <label class="switch"><input type="checkbox" id="soundToggle" checked onchange="saveSettings()"><span class="slider"></span></label>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-          <span style="font-size:13px;">Blokada PIN</span>
+        <div class="setting-item">
+          <span class="label">PIN lock</span>
           <label class="switch"><input type="checkbox" id="pinToggle" onchange="saveSettings()"><span class="slider"></span></label>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Wybór portfela</div>
-        <div id="walletSelector"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Informacje</div>
-        <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">
-          <b>Vex Hack Coin</b> &ndash; hobbystyczny blockchain SHA-256 PoW.<br><br>
-          Serwer: <span id="settingsServer">vexcoin.xo.je</span><br>
-          Wersja: 2.0.0<br>
+        <div class="card-title">Info</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">
+          <b>Vex Hack Coin</b> &ndash; hobby SHA-256 PoW blockchain.<br><br>
+          Server: <span id="settingsServer">Vercel + Neon</span><br>
+          Version: 2.0.0<br>
           <a href="https://vexcoin.xo.je" style="color:var(--accent);text-decoration:none;" target="_blank">vexcoin.xo.je</a>
         </div>
       </div>
@@ -266,15 +261,14 @@
   </div>
 
   <nav class="app-nav" id="appNav">
-    <button class="active" data-page="pageDashboard"><span class="icon">&#x1F4CA;</span>Panel</button>
-    <button data-page="pageMining"><span class="icon">&#x26A1;</span>Koparka</button>
-    <button data-page="pageSend"><span class="icon">&#x2194;&#xFE0F;</span>Wyślij</button>
-    <button data-page="pageCards"><span class="icon">&#x1F4B3;</span>Karty</button>
-    <button data-page="pageSettings"><span class="icon">&#x2699;&#xFE0F;</span>Ustawienia</button>
+    <button class="active" data-page="pageDashboard"><span class="icon">&#x1F4CA;</span>Dashboard</button>
+    <button data-page="pageMining"><span class="icon">&#x26A1;</span>Miner</button>
+    <button data-page="pageSend"><span class="icon">&#x2194;&#xFE0F;</span>Send</button>
+    <button data-page="pageCards"><span class="icon">&#x1F4B3;</span>Cards</button>
+    <button data-page="pageSettings"><span class="icon">&#x2699;&#xFE0F;</span>Settings</button>
   </nav>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script src="js/app.js"></script>
