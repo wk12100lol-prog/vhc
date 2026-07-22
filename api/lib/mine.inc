@@ -30,15 +30,13 @@ switch ($action) {
         // Sprawdz czy portfel istnieje, jesli nie - utworz wpis
         $user = $db->fetchOne("SELECT id FROM users WHERE wallet_address = ?", [$wallet]);
         if (!$user) {
-            // Automatyczne utworzenie konta dla gornika
             $db->insert(
                 "INSERT INTO users (login, email, password_hash, wallet_address, balance, created_at)
                  VALUES (?, ?, ?, ?, 0, NOW())",
                 ['miner_' . substr($wallet, 0, 8),
                  $wallet . '@vhc.miner',
                  hash('sha256', $wallet . time()),
-                 $wallet,
-                 0]
+                 $wallet]
             );
         }
 

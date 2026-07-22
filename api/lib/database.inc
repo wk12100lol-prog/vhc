@@ -40,7 +40,9 @@ class Database {
 
     public function fetchOne($sql, $params = []) {
         $stmt = $this->query($sql, $params);
-        return $stmt->fetch();
+        $row = $stmt->fetch();
+        $stmt->closeCursor();
+        return $row;
     }
 
     public function fetchAll($sql, $params = []) {
@@ -49,11 +51,12 @@ class Database {
     }
 
     public function insert($sql, $params = []) {
-        // Add RETURNING id for PostgreSQL, replace ? with $1,$2 style for RETURNING
+        // Add RETURNING id for PostgreSQL
         if (DB_DRIVER === 'pgsql' && stripos($sql, ' RETURNING ') === false) {
             $sql = rtrim($sql, '; ') . ' RETURNING id';
             $stmt = $this->query($sql, $params);
             $row = $stmt->fetch();
+            $stmt->closeCursor();
             return $row ? $row['id'] : null;
         }
         $this->query($sql, $params);
