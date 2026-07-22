@@ -6,14 +6,14 @@ require_once __DIR__ . '/database.inc';
 
 $db = Database::getInstance();
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 
 $wallet = trim($input['wallet'] ?? '');
 $limit = min((int)($input['limit'] ?? 50), 100);
 $offset = (int)($input['offset'] ?? 0);
 
 if (empty($wallet)) {
-    Database::jsonError('Podaj adres portfela');
+    jsonError('Podaj adres portfela');
 }
 
 $transactions = $db->fetchAll(
@@ -26,7 +26,7 @@ $transactions = $db->fetchAll(
     [$wallet, $wallet, $limit, $offset]
 );
 
-Database::jsonSuccess([
+jsonSuccess([
     'transactions' => $transactions,
     'count' => count($transactions)
 ]);

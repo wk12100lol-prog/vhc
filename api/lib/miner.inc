@@ -6,11 +6,11 @@ require_once __DIR__ . '/database.inc';
 
 $db = Database::getInstance();
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 $action = $input['action'] ?? '';
 
 if (empty($action)) {
-    Database::jsonError('Brak akcji');
+    jsonError('Brak akcji');
 }
 
 $wallet = trim($input['wallet'] ?? '');
@@ -22,7 +22,7 @@ switch ($action) {
     // -------------------------------------------------------
     case 'register':
         if (empty($wallet)) {
-            Database::jsonError('Podaj adres portfela');
+            jsonError('Podaj adres portfela');
         }
 
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
@@ -42,7 +42,7 @@ switch ($action) {
             );
         }
 
-        Database::jsonSuccess([
+        jsonSuccess([
             'message' => 'Koparka zarejestrowana',
             'wallet' => $wallet
         ]);
@@ -53,7 +53,7 @@ switch ($action) {
     // -------------------------------------------------------
     case 'ping':
         if (empty($wallet)) {
-            Database::jsonError('Podaj adres portfela');
+            jsonError('Podaj adres portfela');
         }
 
         $hashrate = (float)($input['hashrate'] ?? 0);
@@ -64,7 +64,7 @@ switch ($action) {
             [$hashrate, $ip, $wallet]
         );
 
-        Database::jsonSuccess([
+        jsonSuccess([
             'message' => 'Ping odebrany',
             'wallet' => $wallet,
             'hashrate' => $hashrate
@@ -76,15 +76,15 @@ switch ($action) {
     // -------------------------------------------------------
     case 'list':
         $miners = $db->fetchAll(
-            "SELECT wallet, hashrate, last_seen FROM miners WHERE last_seen >= DATE_SUB(NOW(), INTERVAL 1 HOUR) ORDER BY hashrate DESC LIMIT 50"
+            "SELECT wallet, hashrate, last_seen FROM miners WHERE last_seen >= NOW() - INTERVAL '1 HOUR' ORDER BY hashrate DESC LIMIT 50"
         );
 
-        Database::jsonSuccess([
+        jsonSuccess([
             'miners' => $miners,
             'count' => count($miners)
         ]);
         break;
 
     default:
-        Database::jsonError('Nieznana akcja: ' . $action);
+        jsonError('Nieznana akcja: ' . $action);
 }

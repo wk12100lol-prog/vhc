@@ -11,7 +11,7 @@ $currentDifficulty = $blockchain->getCurrentDifficulty();
 $nextDifficulty = $blockchain->calculateNewDifficulty();
 $latestBlock = $blockchain->getLatestBlock();
 
-Database::jsonSuccess([
+jsonSuccess([
     'current_difficulty' => $currentDifficulty,
     'next_difficulty' => $nextDifficulty,
     'target_block_time' => TARGET_BLOCK_TIME,

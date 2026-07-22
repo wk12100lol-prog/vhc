@@ -8,11 +8,11 @@ require_once __DIR__ . '/blockchain.inc';
 $db = Database::getInstance();
 $blockchain = new Blockchain();
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 $action = $input['action'] ?? '';
 
 if (empty($action)) {
-    Database::jsonError('Brak akcji (get_job lub submit_block)');
+    jsonError('Brak akcji (get_job lub submit_block)');
 }
 
 switch ($action) {
@@ -24,7 +24,7 @@ switch ($action) {
         $wallet = trim($input['wallet'] ?? '');
 
         if (empty($wallet)) {
-            Database::jsonError('Podaj adres portfela');
+            jsonError('Podaj adres portfela');
         }
 
         // Sprawdz czy portfel istnieje, jesli nie - utworz wpis
@@ -44,7 +44,7 @@ switch ($action) {
 
         $job = $blockchain->createMiningJob($wallet);
 
-        Database::jsonSuccess([
+        jsonSuccess([
             'job' => $job,
             'message' => 'Zadanie wydobycia pobrane'
         ]);
@@ -64,7 +64,7 @@ switch ($action) {
         }
 
         if (empty($blockData)) {
-            Database::jsonError('Brak danych bloku');
+            jsonError('Brak danych bloku');
         }
 
         $result = $blockchain->submitBlock($blockData);
@@ -73,5 +73,5 @@ switch ($action) {
         break;
 
     default:
-        Database::jsonError('Nieznana akcja: ' . $action);
+        jsonError('Nieznana akcja: ' . $action);
 }

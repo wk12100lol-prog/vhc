@@ -8,38 +8,38 @@ require_once __DIR__ . '/blockchain.inc';
 $db = Database::getInstance();
 $blockchain = new Blockchain();
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 
 $login = trim($input['login'] ?? '');
 $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 
 if (empty($login) || empty($email) || empty($password)) {
-    Database::jsonError('Wypelnij wszystkie pola (login, email, haslo)');
+    jsonError('Wypelnij wszystkie pola (login, email, haslo)');
 }
 
 if (strlen($login) < 3 || strlen($login) > 50) {
-    Database::jsonError('Login musi miec od 3 do 50 znakow');
+    jsonError('Login musi miec od 3 do 50 znakow');
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    Database::jsonError('Nieprawidlowy adres email');
+    jsonError('Nieprawidlowy adres email');
 }
 
 if (strlen($password) < 6) {
-    Database::jsonError('Haslo musi miec co najmniej 6 znakow');
+    jsonError('Haslo musi miec co najmniej 6 znakow');
 }
 
 // Sprawdzenie czy login juz istnieje
 $existing = $db->fetchOne("SELECT id FROM users WHERE login = ?", [$login]);
 if ($existing) {
-    Database::jsonError('Uzytkownik o tym loginie juz istnieje');
+    jsonError('Uzytkownik o tym loginie juz istnieje');
 }
 
 // Sprawdzenie czy email juz istnieje
 $existing = $db->fetchOne("SELECT id FROM users WHERE email = ?", [$email]);
 if ($existing) {
-    Database::jsonError('Ten adres email jest juz uzywany');
+    jsonError('Ten adres email jest juz uzywany');
 }
 
 // Generowanie adresu portfela
@@ -57,7 +57,7 @@ $db->insert(
 
 $userId = $db->getPdo()->lastInsertId();
 
-Database::jsonSuccess([
+jsonSuccess([
     'message' => 'Rejestracja zakonczona sukcesem',
     'user_id' => $userId,
     'wallet' => $wallet

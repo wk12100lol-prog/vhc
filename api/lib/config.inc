@@ -5,10 +5,12 @@
 // -------------------------------------------------------
 // Ustawienia bazy danych
 // -------------------------------------------------------
-define('DB_HOST', 'sql301.infinityfree.com');
-define('DB_NAME', 'if0_41469094_vexcoin');
-define('DB_USER', 'if0_41469094');
-define('DB_PASS', '121koko9a');
+define('DB_HOST', 'ep-quiet-truth-axwblon3-pooler.c-4.us-east-2.aws.neon.tech');
+define('DB_PORT', '5432');
+define('DB_NAME', 'neondb');
+define('DB_USER', 'neondb_owner');
+define('DB_PASS', 'npg_vaEFiKk3qB7r');
+define('DB_DRIVER', 'pgsql');
 
 // -------------------------------------------------------
 // Ustawienia blockchain

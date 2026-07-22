@@ -6,12 +6,12 @@ require_once __DIR__ . '/database.inc';
 
 $db = Database::getInstance();
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 
 $wallet = trim($input['wallet'] ?? '');
 
 if (empty($wallet)) {
-    Database::jsonError('Podaj adres portfela');
+    jsonError('Podaj adres portfela');
 }
 
 $user = $db->fetchOne(
@@ -20,10 +20,10 @@ $user = $db->fetchOne(
 );
 
 if (!$user) {
-    Database::jsonError('Portfel nie istnieje');
+    jsonError('Portfel nie istnieje');
 }
 
-Database::jsonSuccess([
+jsonSuccess([
     'wallet' => $user['wallet_address'],
     'login' => $user['login'],
     'balance' => (float)$user['balance'],

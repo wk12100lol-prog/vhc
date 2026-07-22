@@ -6,13 +6,13 @@ require_once __DIR__ . '/database.inc';
 
 $db = Database::getInstance();
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 
 $login = trim($input['login'] ?? '');
 $password = $input['password'] ?? '';
 
 if (empty($login) || empty($password)) {
-    Database::jsonError('Wypelnij wszystkie pola (login, haslo)');
+    jsonError('Wypelnij wszystkie pola (login, haslo)');
 }
 
 $user = $db->fetchOne(
@@ -22,11 +22,11 @@ $user = $db->fetchOne(
 );
 
 if (!$user) {
-    Database::jsonError('Nieprawidlowy login lub haslo');
+    jsonError('Nieprawidlowy login lub haslo');
 }
 
 if (!password_verify($password, $user['password_hash'])) {
-    Database::jsonError('Nieprawidlowy login lub haslo');
+    jsonError('Nieprawidlowy login lub haslo');
 }
 
 // Generowanie i zapis tokena sesji
@@ -46,7 +46,7 @@ $db->query(
     [$user['id'], $user['id']]
 );
 
-Database::jsonSuccess([
+jsonSuccess([
     'message' => 'Zalogowano pomyslnie',
     'token' => $token,
     'user' => [

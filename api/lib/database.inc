@@ -10,14 +10,14 @@ class Database {
 
     private function __construct() {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";sslmode=require";
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false
             ]);
         } catch (PDOException $e) {
-            $this->jsonError('Blad polaczenia z baza danych: ' . $e->getMessage());
+            jsonError('Blad polaczenia z baza danych: ' . $e->getMessage());
         }
     }
 
@@ -49,6 +49,13 @@ class Database {
     }
 
     public function insert($sql, $params = []) {
+        // Add RETURNING id for PostgreSQL, replace ? with $1,$2 style for RETURNING
+        if (DB_DRIVER === 'pgsql' && stripos($sql, ' RETURNING ') === false) {
+            $sql = rtrim($sql, '; ') . ' RETURNING id';
+            $stmt = $this->query($sql, $params);
+            $row = $stmt->fetch();
+            return $row ? $row['id'] : null;
+        }
         $this->query($sql, $params);
         return $this->pdo->lastInsertId();
     }
@@ -65,31 +72,4 @@ class Database {
         return $this->pdo->rollBack();
     }
 
-    public static function jsonSuccess($data = []) {
-        echo json_encode(array_merge(['success' => true], $data), JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    public static function jsonError($message, $code = 400) {
-        http_response_code($code);
-        echo json_encode([
-            'success' => false,
-            'error' => $message
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    public static function getJsonInput() {
-        // Najpierw proba JSON z php://input
-        $input = file_get_contents('php://input');
-        $data = json_decode($input, true);
-        if ($data !== null && is_array($data)) {
-            return $data;
-        }
-        // Jesli JSON sie nie powiodl, sprawdz $_POST (form-urlencoded)
-        if (!empty($_POST)) {
-            return $_POST;
-        }
-        return [];
-    }
 }

@@ -5,28 +5,28 @@ $db = Database::getInstance();
 
 // Auto-tworzenie tabel nagrod jesli nie istnieja
 $db->query("CREATE TABLE IF NOT EXISTS rewards (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     vhc_required DECIMAL(16,8) NOT NULL DEFAULT 0,
     stock INT NOT NULL DEFAULT 1,
     claimed INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+)");
 
 $db->query("CREATE TABLE IF NOT EXISTS reward_claims (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     reward_id INT NOT NULL,
     wallet VARCHAR(66) NOT NULL,
-    claimed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    claimed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (reward_id) REFERENCES rewards(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+)");
 
-$input = Database::getJsonInput();
+$input = getJsonInput();
 $action = $input['action'] ?? '';
 
 if (empty($action)) {
-    Database::jsonError('Brak akcji');
+    jsonError('Brak akcji');
 }
 
 $admin_pass = 'vexhack121koko9a';
@@ -40,7 +40,7 @@ switch ($action) {
         $rewards = $db->fetchAll(
             "SELECT * FROM rewards WHERE stock > claimed ORDER BY vhc_required ASC"
         );
-        Database::jsonSuccess(['rewards' => $rewards ?: []]);
+        jsonSuccess(['rewards' => $rewards ?: []]);
         break;
 
     // -------------------------------------------------------
@@ -49,7 +49,7 @@ switch ($action) {
     case 'add':
         $password = $input['password'] ?? '';
         if ($password !== $admin_pass) {
-            Database::jsonError('Nieprawidlowe haslo');
+            jsonError('Nieprawidlowe haslo');
         }
 
         $title = trim($input['title'] ?? '');
@@ -58,7 +58,7 @@ switch ($action) {
         $stock = (int)($input['stock'] ?? 1);
 
         if (empty($title) || $vhc_required <= 0 || $stock <= 0) {
-            Database::jsonError('Wypelnij wszystkie pola');
+            jsonError('Wypelnij wszystkie pola');
         }
 
         $db->insert(
@@ -66,7 +66,7 @@ switch ($action) {
             [$title, $description, $vhc_required, $stock]
         );
 
-        Database::jsonSuccess(['message' => 'Nagroda dodana']);
+        jsonSuccess(['message' => 'Nagroda dodana']);
         break;
 
     // -------------------------------------------------------
@@ -75,16 +75,16 @@ switch ($action) {
     case 'delete':
         $password = $input['password'] ?? '';
         if ($password !== $admin_pass) {
-            Database::jsonError('Nieprawidlowe haslo');
+            jsonError('Nieprawidlowe haslo');
         }
 
         $id = (int)($input['id'] ?? 0);
         if ($id <= 0) {
-            Database::jsonError('Nieprawidlowe ID');
+            jsonError('Nieprawidlowe ID');
         }
 
         $db->query("DELETE FROM rewards WHERE id = ?", [$id]);
-        Database::jsonSuccess(['message' => 'Nagroda usunieta']);
+        jsonSuccess(['message' => 'Nagroda usunieta']);
         break;
 
     // -------------------------------------------------------
@@ -93,12 +93,12 @@ switch ($action) {
     case 'set_difficulty':
         $password = $input['password'] ?? '';
         if ($password !== $admin_pass) {
-            Database::jsonError('Nieprawidlowe haslo');
+            jsonError('Nieprawidlowe haslo');
         }
 
         $newDiff = (int)($input['difficulty'] ?? 0);
         if ($newDiff < MIN_DIFFICULTY || $newDiff > MAX_DIFFICULTY) {
-            Database::jsonError('Trudnosc musi byc miedzy ' . MIN_DIFFICULTY . ' a ' . MAX_DIFFICULTY);
+            jsonError('Trudnosc musi byc miedzy ' . MIN_DIFFICULTY . ' a ' . MAX_DIFFICULTY);
         }
 
         // Zaktualizuj ostatni blok
@@ -107,7 +107,7 @@ switch ($action) {
             [$newDiff]
         );
 
-        Database::jsonSuccess(['message' => "Trudnosc ustawiona na $newDiff"]);
+        jsonSuccess(['message' => "Trudnosc ustawiona na $newDiff"]);
         break;
 
     // -------------------------------------------------------
@@ -118,7 +118,7 @@ switch ($action) {
         $reward_id = (int)($input['reward_id'] ?? 0);
 
         if (empty($wallet) || $reward_id <= 0) {
-            Database::jsonError('Nieprawidlowe dane');
+            jsonError('Nieprawidlowe dane');
         }
 
         // Sprawdz czy nagroda istnieje i ma wolne sztuki
@@ -127,7 +127,7 @@ switch ($action) {
             [$reward_id]
         );
         if (!$reward) {
-            Database::jsonError('Nagroda niedostepna');
+            jsonError('Nagroda niedostepna');
         }
 
         // Sprawdz czy uzytkownik ma wystarczajaco VHC
@@ -136,10 +136,10 @@ switch ($action) {
             [$wallet]
         );
         if (!$user) {
-            Database::jsonError('Portfel nie istnieje');
+            jsonError('Portfel nie istnieje');
         }
         if ((float)$user['balance'] < (float)$reward['vhc_required']) {
-            Database::jsonError('Za malo VHC. Potrzebujesz ' . number_format((float)$reward['vhc_required'], 8) . ' VHC');
+            jsonError('Za malo VHC. Potrzebujesz ' . number_format((float)$reward['vhc_required'], 8) . ' VHC');
         }
 
         // Czy juz odbieral ta nagrode?
@@ -148,7 +148,7 @@ switch ($action) {
             [$reward_id, $wallet]
         );
         if ($existing) {
-            Database::jsonError('Juz odebrales te nagrode');
+            jsonError('Juz odebrales te nagrode');
         }
 
         // Odejmij VHC
@@ -184,11 +184,11 @@ switch ($action) {
 
         @mail($to, $subject, $message, $headers);
 
-        Database::jsonSuccess([
+        jsonSuccess([
             'message' => "Nagroda '{$reward['title']}' odebrana! Szczegoly wyslane na email."
         ]);
         break;
 
     default:
-        Database::jsonError('Nieznana akcja');
+        jsonError('Nieznana akcja');
 }

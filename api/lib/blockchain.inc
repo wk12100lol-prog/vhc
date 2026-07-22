@@ -172,11 +172,11 @@ class Blockchain {
 
     public function addPendingTransaction($sender, $receiver, $amount) {
         if ($amount <= 0) {
-            Database::jsonError('Kwota musi byc wieksza od 0');
+            jsonError('Kwota musi byc wieksza od 0');
         }
 
         if ($sender === $receiver) {
-            Database::jsonError('Nie mozesz wyslac monet do samego siebie');
+            jsonError('Nie mozesz wyslac monet do samego siebie');
         }
 
         // Sprawdzenie salda
@@ -185,10 +185,10 @@ class Blockchain {
             [$sender]
         );
         if (!$senderData) {
-            Database::jsonError('Adres nadawcy nie istnieje');
+            jsonError('Adres nadawcy nie istnieje');
         }
         if ($senderData['balance'] < $amount) {
-            Database::jsonError('Niewystarczajace saldo');
+            jsonError('Niewystarczajace saldo');
         }
 
         $timestamp = time();
@@ -246,7 +246,7 @@ class Blockchain {
         $required = ['block_index', 'previous_hash', 'transactions', 'miner', 'reward', 'difficulty', 'nonce', 'hash'];
         foreach ($required as $field) {
             if (!isset($blockData[$field])) {
-                Database::jsonError("Brakujace pole: $field");
+                jsonError("Brakujace pole: $field");
             }
         }
 
@@ -263,24 +263,24 @@ class Blockchain {
         // 1. Sprawdzenie czy blok o takim indeksie juz istnieje
         $existing = $this->getBlockByIndex($blockIndex);
         if ($existing) {
-            Database::jsonError("Blok #$blockIndex juz istnieje w lancuchu");
+            jsonError("Blok #$blockIndex juz istnieje w lancuchu");
         }
 
         // 2. Sprawdzenie poprzedniego hasha
         $latestBlock = $this->getLatestBlock();
         if ($latestBlock['current_hash'] !== $prevHash) {
-            Database::jsonError('Nieprawidlowy hash poprzedniego bloku. Otrzymano: ' . $prevHash . ', oczekiwano: ' . $latestBlock['current_hash']);
+            jsonError('Nieprawidlowy hash poprzedniego bloku. Otrzymano: ' . $prevHash . ', oczekiwano: ' . $latestBlock['current_hash']);
         }
 
         // 3. Sprawdzenie indeksu
         $expectedIndex = $latestBlock['block_index'] + 1;
         if ($blockIndex !== $expectedIndex) {
-            Database::jsonError("Nieprawidlowy indeks bloku. Otrzymano: $blockIndex, oczekiwano: $expectedIndex");
+            jsonError("Nieprawidlowy indeks bloku. Otrzymano: $blockIndex, oczekiwano: $expectedIndex");
         }
 
         // 4. Sprawdzenie czy reward jest prawidlowy
         if ($reward != BLOCK_REWARD) {
-            Database::jsonError("Nieprawidlowa nagroda. Otrzymano: $reward, oczekiwano: " . BLOCK_REWARD);
+            jsonError("Nieprawidlowa nagroda. Otrzymano: $reward, oczekiwano: " . BLOCK_REWARD);
         }
 
         // 5. Sprawdzenie trudnosci
@@ -289,7 +289,7 @@ class Blockchain {
             // Dopuszczamy roznice +/- 1 ze wzgledu na race condition
             $currentDiff = $this->getCurrentDifficulty();
             if ($difficulty !== $currentDiff && $difficulty !== $currentDiff + 1 && $difficulty !== max($currentDiff - 1, MIN_DIFFICULTY)) {
-                Database::jsonError("Nieprawidlowa trudnosc. Otrzymano: $difficulty, oczekiwano: $expectedDifficulty (lub $currentDiff)");
+                jsonError("Nieprawidlowa trudnosc. Otrzymano: $difficulty, oczekiwano: $expectedDifficulty (lub $currentDiff)");
             }
         }
 
@@ -298,12 +298,12 @@ class Blockchain {
         $calculatedHash = self::calculateHash($blockIndex, $prevHash, $timestamp, $txsJson, $miner, $reward, $difficulty, $nonce);
 
         if ($calculatedHash !== $submittedHash) {
-            Database::jsonError("Nieprawidlowy hash bloku. Obliczony: $calculatedHash, otrzymany: $submittedHash");
+            jsonError("Nieprawidlowy hash bloku. Obliczony: $calculatedHash, otrzymany: $submittedHash");
         }
 
         // 7. Sprawdzenie czy hash spelnia wymagania trudnosci
         if (!self::isValidHash($submittedHash, $difficulty)) {
-            Database::jsonError("Hash bloku nie spelnia wymagania trudnosci ($difficulty zer)");
+            jsonError("Hash bloku nie spelnia wymagania trudnosci ($difficulty zer)");
         }
 
         // 8. Walidacja transakcji
@@ -313,20 +313,20 @@ class Blockchain {
 
         foreach ($transactions as $i => $tx) {
             if (!isset($tx['sender'], $tx['receiver'], $tx['amount'])) {
-                Database::jsonError("Nieprawidlowa struktura transakcji na pozycji $i");
+                jsonError("Nieprawidlowa struktura transakcji na pozycji $i");
             }
 
             if ($tx['sender'] === 'SYSTEM') {
                 // Transakcja coinbase - nagroda za blok
                 $coinbaseCount++;
                 if ($coinbaseCount > 1) {
-                    Database::jsonError('Blok moze zawierac tylko jedna transakcje coinbase');
+                    jsonError('Blok moze zawierac tylko jedna transakcje coinbase');
                 }
                 if ($tx['receiver'] !== $miner) {
-                    Database::jsonError('Transakcja coinbase musi byc przypisana do gornika');
+                    jsonError('Transakcja coinbase musi byc przypisana do gornika');
                 }
                 if ((float)$tx['amount'] != $reward) {
-                    Database::jsonError('Nieprawidlowa kwota nagrody w transakcji coinbase');
+                    jsonError('Nieprawidlowa kwota nagrody w transakcji coinbase');
                 }
             } else {
                 // Zwykla transakcja
@@ -344,10 +344,10 @@ class Blockchain {
                     [$sender]
                 );
                 if (!$senderData) {
-                    Database::jsonError("Nadawca nie istnieje: " . $sender);
+                    jsonError("Nadawca nie istnieje: " . $sender);
                 }
                 if ($senderData['balance'] < $processedAmounts[$sender]) {
-                    Database::jsonError("Niewystarczajace saldo nadawcy $sender. Posiada: {$senderData['balance']}, potrzebuje: {$processedAmounts[$sender]}");
+                    jsonError("Niewystarczajace saldo nadawcy $sender. Posiada: {$senderData['balance']}, potrzebuje: {$processedAmounts[$sender]}");
                 }
 
                 // Sprawdz czy transakcja istnieje w pending_transactions i nie zostala juz potwierdzona
@@ -356,7 +356,7 @@ class Blockchain {
                     [$sender, $tx['receiver'], $amount]
                 );
                 if (!$pendingTx) {
-                    Database::jsonError("Nie znaleziono oczekujacej transakcji: $sender -> {$tx['receiver']} ($amount VHC)");
+                    jsonError("Nie znaleziono oczekujacej transakcji: $sender -> {$tx['receiver']} ($amount VHC)");
                 }
                 $txIdsToConfirm[] = (int)$pendingTx['id'];
             }
@@ -364,7 +364,7 @@ class Blockchain {
 
         // Upewnij sie, ze jest dokladnie jedna coinbase
         if ($coinbaseCount !== 1) {
-            Database::jsonError('Blok musi zawierac dokladnie jedna transakcje coinbase');
+            jsonError('Blok musi zawierac dokladnie jedna transakcje coinbase');
         }
 
         // -------------------------------------------------------
@@ -454,7 +454,7 @@ class Blockchain {
 
         } catch (Exception $e) {
             $this->db->rollback();
-            Database::jsonError('Blad podczas zapisu bloku: ' . $e->getMessage());
+            jsonError('Blad podczas zapisu bloku: ' . $e->getMessage());
         }
     }
 
@@ -476,12 +476,12 @@ class Blockchain {
         $nextDifficulty = $this->calculateNewDifficulty();
 
         $activeMiners = $this->db->fetchOne(
-            "SELECT COUNT(*) as count FROM miners WHERE last_seen >= DATE_SUB(NOW(), INTERVAL 1 HOUR)"
+            "SELECT COUNT(*) as count FROM miners WHERE last_seen >= NOW() - INTERVAL '1 HOUR'"
         );
         $activeMiners = $activeMiners ? (int)$activeMiners['count'] : 0;
 
         $lastHourBlocks = $this->db->fetchOne(
-            "SELECT COUNT(*) as count FROM blocks WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)"
+            "SELECT COUNT(*) as count FROM blocks WHERE created_at >= NOW() - INTERVAL '1 HOUR'"
         );
         $lastHourBlocks = $lastHourBlocks ? (int)$lastHourBlocks['count'] : 0;
 
@@ -515,7 +515,7 @@ if ($isDirectCall) {
     $action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : '');
 
     if (empty($action)) {
-        $input = Database::getJsonInput();
+        $input = getJsonInput();
         $action = $input['action'] ?? '';
     }
 
@@ -533,6 +533,6 @@ if ($isDirectCall) {
             break;
 
         default:
-            Database::jsonError('Nieznana akcja: ' . $action);
+            jsonError('Nieznana akcja: ' . $action);
     }
 }

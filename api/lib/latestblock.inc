@@ -9,6 +9,6 @@ $blockchain = new Blockchain();
 
 $block = $blockchain->getLatestBlock();
 
-Database::jsonSuccess([
+jsonSuccess([
     'block' => $block
 ]);
