@@ -1,7 +1,7 @@
 // Vex Hack Coin (VHC) - Glowny skrypt JavaScript
 // Wersja: 1.0.1
 
-const API_URL = 'https://vexcoin.xo.je/api';
+const API_URL = '/api';
 
 function $(id) { return document.getElementById(id); }
 

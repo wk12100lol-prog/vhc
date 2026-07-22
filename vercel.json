@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.7.1"
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.php" },
+    { "src": "/download/(.*)", "dest": "/api/lib/download/$1" },
+    { "src": "/login", "dest": "/website/login.html" },
+    { "src": "/register", "dest": "/website/register.html" },
+    { "src": "/dashboard", "dest": "/website/dashboard.html" },
+    { "src": "/explorer", "dest": "/website/explorer.html" },
+    { "src": "/admin", "dest": "/website/admin.html" },
+    { "src": "/(.*)", "dest": "/website/$1" }
+  ],
+  "github": {
+    "silent": true
+  }
+}

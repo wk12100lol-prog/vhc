@@ -1,0 +1,9 @@
+deploy/
+backend/
+firmware/
+vhc-app/
+miner/
+node_modules/
+database/
+web_flasher/
+cookies.txt

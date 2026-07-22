@@ -14,3 +14,5 @@ vhc-app/android/.gradle/
 vhc-app/android/app/build/
 vhc-app/android/capacitor-cordova-android-plugins/build/
 vhc-app/node_modules/
+
+.vercel
