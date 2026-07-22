@@ -14,7 +14,7 @@ class Database {
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false
+                PDO::ATTR_EMULATE_PREPARES => true
             ]);
         } catch (PDOException $e) {
             jsonError('Blad polaczenia z baza danych: ' . $e->getMessage());
@@ -44,6 +44,8 @@ class Database {
         $stmt->closeCursor();
         return $row;
     }
+
+
 
     public function fetchAll($sql, $params = []) {
         $stmt = $this->query($sql, $params);

@@ -374,38 +374,29 @@ class Blockchain {
         $this->db->beginTransaction();
 
         try {
-            // Zapis bloku - use RETURNING id directly in SQL, no separate lastInsertId
-            $stmt = $this->db->query(
+            // Zapis bloku
+            $blockId = $this->db->insert(
                 "INSERT INTO blocks (block_index, previous_hash, current_hash, nonce, miner, reward, timestamp, difficulty, transactions_json, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) RETURNING id",
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
                 [$blockIndex, $prevHash, $submittedHash, $nonce, $miner, $reward, $timestamp, $difficulty, $txsJson]
             );
-            $row = $stmt->fetch();
-            $stmt->closeCursor();
-            $blockId = $row ? $row['id'] : null;
-            $debug = "block_ok=$blockId";
 
             // Przetwarzanie transakcji
             $txIndex = 0;
             foreach ($transactions as $tx) {
-                $debug .= "|tx{$txIndex}";
                 if ($tx['sender'] === 'SYSTEM') {
                     // Coinbase - dodaj nagrode gornikowi
-                    $debug .= "|u1";
                     $this->db->query(
                         "UPDATE users SET balance = balance + ? WHERE wallet_address = ?",
                         [$tx['amount'], $tx['receiver']]
                     );
-                    $debug .= "|u1ok";
                     // Jesli gornik nie ma konta, utworz z losowym hash-em hasla
                     $minerUser = $this->db->fetchOne(
                         "SELECT id FROM users WHERE wallet_address = ?", [$tx['receiver']]
                     );
-                    $debug .= "|sel=" . ($minerUser ? $minerUser['id'] : '0');
                     if (!$minerUser) {
                         $randomLogin = 'miner_' . substr(hash('sha256', $tx['receiver']), 0, 10);
                         $randomPass = hash('sha256', $tx['receiver'] . bin2hex(random_bytes(8)));
-                        $debug .= "|insuser";
                         $this->db->insert(
                             "INSERT INTO users (login, email, password_hash, wallet_address, balance, created_at)
                              VALUES (?, ?, ?, ?, ?, NOW())",
@@ -437,19 +428,15 @@ class Blockchain {
                 }
 
                 // Zapis do historii transakcji
-                $debug .= "|ins_tx";
-                $stmt2 = $this->db->query(
+                $this->db->query(
                     "INSERT INTO transactions (sender, receiver, amount, timestamp, block_id)
-                     VALUES (?, ?, ?, ?, ?) RETURNING id",
+                     VALUES (?, ?, ?, ?, ?)",
                     [$tx['sender'], $tx['receiver'], $tx['amount'], $tx['timestamp'] ?? time(), $blockId]
                 );
-                $stmt2->closeCursor();
-                $debug .= "|ins_tx_ok";
 
                 $txIndex++;
             }
 
-            $debug .= "|commit";
             $this->db->commit();
 
             return [
@@ -464,14 +451,8 @@ class Blockchain {
             ];
 
         } catch (Exception $e) {
-            $msg = $e->getMessage();
-            $code = $e->getCode();
-            $prev = $e->getPrevious();
-            $prevMsg = $prev ? ' | PREV: ' . $prev->getMessage() : '';
-            $errDetail = "EX:{$msg} (code:{$code}){$prevMsg}";
-            if (isset($debug)) $errDetail .= " | " . $debug;
-            try { $this->db->rollback(); } catch (Exception $rb) { $errDetail .= ' | RBERR:' . $rb->getMessage(); }
-            jsonError('Blad podczas zapisu bloku: ' . $errDetail);
+            $this->db->rollback();
+            jsonError('Blad podczas zapisu bloku: ' . $e->getMessage());
         }
     }
 
